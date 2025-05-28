@@ -4,7 +4,9 @@ import com.example.demo.entities.Agent;
 import com.example.demo.entities.Image;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.User;
+import com.example.demo.repositories.AgentRepository;
 import com.example.demo.repositories.RoleRepository;
+import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.AgentService;
 import com.example.demo.services.FileStorageService;
 import com.example.demo.services.UserService;
@@ -12,6 +14,7 @@ import com.example.demo.services.UserService;
 import org.springframework.http.MediaType;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,16 +29,21 @@ public class UserController {
 
 	@Autowired
     private AgentService agentService;
-    private final UserService userService;
-    private final FileStorageService fileStorageService;
-    private final RoleRepository  roleRepository;
+	@Autowired
+    private UserService userService;
+    @Autowired
+    private FileStorageService fileStorageService;
+    @Autowired
+    private RoleRepository  roleRepository;
+    @Autowired
+    private UserRepository  userRepository;
     
 
-    public UserController(UserService userService ,FileStorageService fileStorageService,RoleRepository  roleRepository ) {
+    /*public UserController(UserService userService ,FileStorageService fileStorageService,RoleRepository  roleRepository ) {
         this.userService = userService;
         this.fileStorageService = fileStorageService;
         this.roleRepository= roleRepository;
-    }
+    }*/
 
     /*@PostMapping("/agent")
     public ResponseEntity<?> createAgent(@RequestBody Agent agent) {
@@ -143,8 +151,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return agentService.getUserById(id);
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isPresent()) {
+            response.put("success", true);
+            response.put("message", "Utilisateur avec l'ID " + id + " trouvé.");
+            response.put("user", optionalUser.get());
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("success", false);
+            response.put("message", "Utilisateur avec l'ID " + id + " introuvable.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
     
 }

@@ -12,5 +12,6 @@ public interface AgentService {
     Agent getAgentById(Long id);
     Agent updateAgent(Long id, Agent updatedAgent);
     void deleteAgent(Long id);
+    Agent updateAgentImage(Agent agent, String imageUrl);
 
 }

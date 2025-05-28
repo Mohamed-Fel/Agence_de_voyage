@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import com.example.demo.entities.Agent;
+import com.example.demo.entities.Image;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.AgentRepository;
 import com.example.demo.repositories.UserRepository;
@@ -50,10 +52,21 @@ public class AgentServiceImpl implements AgentService {
         }
         return agentRepository.save(existing);
     }
+    public Agent updateAgentImage(Agent agent, String imageUrl) {
+        Image existingImage = agent.getImage();
+        if (existingImage != null) {
+            existingImage.setImageURL(imageUrl);
+        } else {
+            Image newImage = new Image(imageUrl);
+            agent.setImage(newImage);
+        }
+        return agentRepository.save(agent);
+    }
 
     @Override
     public void deleteAgent(Long id) {
-        Agent agent = getAgentById(id);
+        Agent agent = agentRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Agent non trouvé avec ID : " + id));
         agentRepository.delete(agent);
     }
 }
