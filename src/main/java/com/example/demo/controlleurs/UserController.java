@@ -3,19 +3,17 @@ package com.example.demo.controlleurs;
 import com.example.demo.entities.Agent;
 import com.example.demo.entities.Image;
 import com.example.demo.entities.Role;
+import com.example.demo.entities.User;
 import com.example.demo.repositories.RoleRepository;
+import com.example.demo.services.AgentService;
 import com.example.demo.services.FileStorageService;
 import com.example.demo.services.UserService;
 
-import java.io.IOException;
 import org.springframework.http.MediaType;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +24,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/users")
 public class UserController {
 
+	@Autowired
+    private AgentService agentService;
     private final UserService userService;
     private final FileStorageService fileStorageService;
     private final RoleRepository  roleRepository;
     
-    private static final String rootLocation = "uploads/";
 
     public UserController(UserService userService ,FileStorageService fileStorageService,RoleRepository  roleRepository ) {
         this.userService = userService;
@@ -143,6 +142,9 @@ public class UserController {
         }
     }
 
-    
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return agentService.getUserById(id);
+    }
     
 }
