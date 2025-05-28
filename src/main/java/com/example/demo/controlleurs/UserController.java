@@ -119,6 +119,7 @@ public class UserController {
             @RequestParam("image") MultipartFile imageFile
     ) {
         try {
+        	
             // 🔐 Sauvegarder l'image
             String imageUrl = fileStorageService.saveImage(imageFile);
 

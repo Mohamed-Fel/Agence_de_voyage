@@ -53,6 +53,15 @@ public class UserServiceImpl implements UserService {
         if (agent.getRole() == null || roleRepository.findById(agent.getRole().getId()).isEmpty()) {
             throw new Exception("Rôle invalide.");
         }
+        if (agent.getRole() != null && "ADMIN".equalsIgnoreCase(agent.getRole().getName())) {
+            Role adminRole = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new IllegalArgumentException("Le rôle ADMIN n'existe pas dans la base"));
+
+            boolean adminExists = userRepository.existsByRole(adminRole);
+            if (adminExists) {
+                throw new IllegalArgumentException("Un administrateur existe déjà. Impossible d’en créer un deuxième.");
+            }
+        }
 
         // Si image non nulle, sauvegarder l'image d'abord
         Image savedImage = null;

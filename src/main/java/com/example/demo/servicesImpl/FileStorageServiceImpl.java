@@ -31,8 +31,9 @@ public class FileStorageServiceImpl implements FileStorageService {
         Files.write(filePath, file.getBytes());
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, file.getBytes());
+        String imageUrl = "http://localhost:8082/uploads/" + fileName;
 
         // Retourner l’URL ou chemin (ici juste le nom)
-        return "/uploads/" + fileName;
+        return imageUrl;
     }
 }

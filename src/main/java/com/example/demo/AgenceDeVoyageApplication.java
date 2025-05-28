@@ -28,6 +28,7 @@ public class AgenceDeVoyageApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AgenceDeVoyageApplication.class, args);
 	}
+  
 	/*@Bean
 	public CommandLineRunner createDefaultAdmin(UserRepository userRepository,
 	                                            RoleRepository roleRepository,

@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 import com.example.demo.entities.Agent;
-import com.example.demo.entities.Image;
 import com.example.demo.repositories.AgentRepository;
 import com.example.demo.services.AgentService;
 import com.example.demo.services.FileStorageService;
@@ -44,10 +43,7 @@ public class AgentController {
 	        return agentService.getAllAgents();
 	    }
 
-	    /*@GetMapping("/agents/{id}")
-	    public Agent getAgentById(@PathVariable Long id) {
-	        return agentService.getAgentById(id);
-	    }*/
+	   
 	    
 	    @GetMapping("/agents/{id}")
 	    public ResponseEntity<?> getAgentById(@PathVariable Long id) {
@@ -107,10 +103,6 @@ public class AgentController {
 	        }
 	    }
 
-	    /*@DeleteMapping("/agents/{id}")
-	    public void deleteAgent(@PathVariable Long id) {
-	        agentService.deleteAgent(id);
-	    }*/
 	    @DeleteMapping("/agents/{id}")
 	    public ResponseEntity<Map<String, Object>> deleteAgent(@PathVariable Long id) {
 	        Map<String, Object> response = new HashMap<>();
