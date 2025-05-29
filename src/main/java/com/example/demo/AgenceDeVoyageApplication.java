@@ -135,7 +135,9 @@ public class AgenceDeVoyageApplication {
 	            Files.copy(Paths.get(sourceImagePath), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
 	            String imageUrl = "http://localhost:8082/uploads/" + fileName;
-	            Image image = new Image(imageUrl);
+	            //Image image = new Image(imageUrl);
+	            Image image = new Image();
+	            image.setImageURL(imageUrl);
 
 	            Admin admin = new Admin();
 	            admin.setEmail(adminEmail);

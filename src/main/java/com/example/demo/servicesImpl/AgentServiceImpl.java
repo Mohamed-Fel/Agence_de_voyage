@@ -57,7 +57,9 @@ public class AgentServiceImpl implements AgentService {
         if (existingImage != null) {
             existingImage.setImageURL(imageUrl);
         } else {
-            Image newImage = new Image(imageUrl);
+            //Image newImage = new Image(imageUrl);
+        	Image newImage = new Image();
+        	newImage.setImageURL(imageUrl);
             agent.setImage(newImage);
         }
         return agentRepository.save(agent);

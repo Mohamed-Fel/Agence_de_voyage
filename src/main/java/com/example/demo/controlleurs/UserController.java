@@ -124,7 +124,9 @@ public class UserController {
             String imageUrl = fileStorageService.saveImage(imageFile);
 
             // 📌 Créer l'entité Image
-            Image image = new Image(imageUrl);
+            //Image image = new Image(imageUrl);
+            Image image = new Image();
+            image.setImageURL(imageUrl);
 
             // 🎯 Récupérer le rôle
             Role role = roleRepository.findById(roleId)
