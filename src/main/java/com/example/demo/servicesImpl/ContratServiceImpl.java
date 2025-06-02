@@ -25,7 +25,7 @@ public class ContratServiceImpl implements ContratService {
     @Override
     public Contrat addContrat(String nomHotel, String startDate, String endDate, MultipartFile file) throws Exception {
         Contrat contrat = new Contrat();
-        contrat.setNomHotel(nomHotel);
+        contrat.setNomProduit(nomHotel);
         contrat.setStartDate(LocalDate.parse(startDate));
         contrat.setEndDate(LocalDate.parse(endDate));
         contrat.setFileUrl(fileStorageService.saveImage(file));
@@ -36,7 +36,7 @@ public class ContratServiceImpl implements ContratService {
     public Contrat updateContrat(Long id, String nomHotel, String startDate, String endDate, MultipartFile file) throws Exception {
         Contrat contrat = contratRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Contrat introuvable"));
-        contrat.setNomHotel(nomHotel);
+        contrat.setNomProduit(nomHotel);
         contrat.setStartDate(LocalDate.parse(startDate));
         contrat.setEndDate(LocalDate.parse(endDate));
 
@@ -53,6 +53,10 @@ public class ContratServiceImpl implements ContratService {
             .orElseThrow(() -> new NoSuchElementException("Contrat introuvable avec l'ID : " + id));
         contratRepository.delete(contrat);
     }
+    @Override
+    public List<Contrat> getContratsNonAssignes() {
+        return contratRepository.findContratsSansProduit();
+    }
 
     @Override
     public List<Contrat> getAllContrats() {
@@ -65,8 +69,8 @@ public class ContratServiceImpl implements ContratService {
     }
 
     @Override
-    public Contrat getContratByNomHotel(String nomHotel) {
-        return contratRepository.findByNomHotel(nomHotel)
+    public Contrat getContratByNomProduit(String nomProduit) {
+        return contratRepository.findByNomProduit(nomProduit)
                 .orElseThrow(() -> new NoSuchElementException("Contrat introuvable pour cet hôtel"));
     }
 }

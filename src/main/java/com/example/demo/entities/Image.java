@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -22,10 +23,17 @@ public class Image {
     private Long id;
 
     private String imageURL; 
-    @JsonIgnore
+    
+    
     @ManyToOne
     @JoinColumn(name = "produit_id")
+    @JsonIgnore
     private Produit produit;
+    
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "room_id") // Clé étrangère
+    private Room room;
    
 
 }

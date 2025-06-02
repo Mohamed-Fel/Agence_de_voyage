@@ -8,11 +8,12 @@ import com.example.demo.entities.Contrat;
 
 public interface ContratService {
 	
-	 Contrat addContrat(String nomHotel, String startDate, String endDate, MultipartFile file) throws Exception;
-	 Contrat updateContrat(Long id, String nomHotel, String startDate, String endDate, MultipartFile file) throws Exception;
+	 Contrat addContrat(String nomProduit, String startDate, String endDate, MultipartFile file) throws Exception;
+	 Contrat updateContrat(Long id, String nomProduit, String startDate, String endDate, MultipartFile file) throws Exception;
      void deleteContrat(Long id);
 	 List<Contrat> getAllContrats();
-	 Contrat getContratByNomHotel(String nomHotel);
+	 Contrat getContratByNomProduit(String nomProduit);
 	 Contrat getContratById(Long id);
+	 List<Contrat> getContratsNonAssignes();
 	 
 }

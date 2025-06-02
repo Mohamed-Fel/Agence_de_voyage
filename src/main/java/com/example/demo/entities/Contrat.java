@@ -2,6 +2,8 @@ package com.example.demo.entities;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,14 +23,14 @@ public class Contrat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nomHotel;
+    private String nomProduit;
 
     private LocalDate startDate;
 
     private LocalDate endDate;
 
     private String fileUrl; // Stockage de l'URL du fichier (PDF, image...)
-
+    @JsonIgnore
     @OneToOne(mappedBy = "contrat")
     private Produit produit;
 }

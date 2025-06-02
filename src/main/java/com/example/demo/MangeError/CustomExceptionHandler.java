@@ -1,9 +1,11 @@
-package ManageError;
+package com.example.demo.MangeError;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -32,5 +34,20 @@ public class CustomExceptionHandler {
 	    apiError.setTimestamp(LocalDateTime.now());
 	    return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
 	}*/
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errors = ex.getBindingResult()
+                          .getFieldErrors()
+                          .stream()
+                          .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                          .collect(Collectors.joining("; "));
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setMessage("Erreur de validation : " + errors);
+        apiResponse.setCode(HttpStatus.BAD_REQUEST.value());
+        apiResponse.setTimestamp(LocalDateTime.now());
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+    }
 
 }

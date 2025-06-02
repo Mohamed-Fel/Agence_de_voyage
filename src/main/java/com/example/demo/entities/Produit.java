@@ -3,6 +3,9 @@ package com.example.demo.entities;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,7 +40,7 @@ public class Produit {
 
 	    private String description;
 
-	    @Pattern(regexp = "^(\\+\\d{1,3})?\\d{7,15}$", message = "Numéro de téléphone invalide")
+	    @Pattern(regexp = "^(\\+\\d{1,3})?\\d{8,14}$", message = "Le numéro de téléphone est invalide")
 	    private String phoneNumber;
 
 	    @Email(message = "Email invalide")
@@ -47,14 +50,15 @@ public class Produit {
 	    @Max(value = 5, message = "Le nombre d'étoiles ne peut pas dépasser 5")
 	    private int nbEtoiles;
 
-	    private String pays;
+	    private String ville;
 
-	    private String country;
+	    private String pays;
 
 	    private String adresse;
 	    
 	    private int initialPrix;
 	    
+	    @JsonIgnore
 	    @ManyToOne
 	    @JoinColumn(name = "user_id")
 	    private User creator;
@@ -68,18 +72,20 @@ public class Produit {
 	    
 	    @ManyToMany
 	    @JoinTable(
-	        name = "produit_service",
+	        name = "produit_services",
 	        joinColumns = @JoinColumn(name = "produit_id"),
 	        inverseJoinColumns = @JoinColumn(name = "service_id")
 	    )
-	    private Set<Service> services;
+	    private List<Services> services;
 	    
 	    @OneToOne(cascade = CascadeType.ALL)
 	    @JoinColumn(name = "localisation_id")
 	    private Localisation localisation;
 	    
-	    @OneToOne(cascade = CascadeType.ALL)
+	    @OneToOne
 	    @JoinColumn(name = "contrat_id")
 	    private Contrat contrat;
 	    
+	    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
+	    private List<Room> rooms ;
 }

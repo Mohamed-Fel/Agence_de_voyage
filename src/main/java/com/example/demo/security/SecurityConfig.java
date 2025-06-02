@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/manage/**").hasRole("ADMIN")
+                .requestMatchers("/contrats/**").hasRole("ADMIN")
                 .requestMatchers("/api/users/agent").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/agent/**").hasRole("AGENT")

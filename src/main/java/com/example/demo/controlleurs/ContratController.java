@@ -35,27 +35,41 @@ public class ContratController {
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addContrat(
-            @RequestParam("nomHotel") String nomHotel,
+            @RequestParam("nomProduit") String nomProduit,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate,
             @RequestPart("file") MultipartFile file) {
         try {
-            Contrat contrat = contratService.addContrat(nomHotel, startDate, endDate, file);
+            Contrat contrat = contratService.addContrat(nomProduit, startDate, endDate, file);
             return ResponseEntity.ok(Map.of("message", "Contrat ajouté avec succès", "contrat", contrat));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    @GetMapping("/non-assignes")
+    public ResponseEntity<?> getContratsNonAssignes() {
+        try {
+            List<Contrat> contrats = contratService.getContratsNonAssignes();
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "✅ Contrats non assignés récupérés avec succès.");
+            response.put("contrats", contrats);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "❌ Erreur lors de la récupération des contrats : " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateContrat(
             @PathVariable Long id,
-            @RequestParam("nomHotel") String nomHotel,
+            @RequestParam("nomProduit") String nomProduit,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate,
             @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
-            Contrat contrat = contratService.updateContrat(id, nomHotel, startDate, endDate, file);
+            Contrat contrat = contratService.updateContrat(id, nomProduit, startDate, endDate, file);
             return ResponseEntity.ok(Map.of("message", "Contrat mis à jour", "contrat", contrat));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -109,7 +123,7 @@ public class ContratController {
     @GetMapping("/hotel/{nomHotel}")
     public ResponseEntity<?> getContratByNomHotel(@PathVariable String nomHotel) {
         try {
-            Contrat contrat = contratService.getContratByNomHotel(nomHotel);
+            Contrat contrat = contratService.getContratByNomProduit(nomHotel);
             return ResponseEntity.ok(contrat);
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
