@@ -86,6 +86,6 @@ public class Produit {
 	    @JoinColumn(name = "contrat_id")
 	    private Contrat contrat;
 	    
-	    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<Room> rooms ;
+	    /*@OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
+	    private List<Room> rooms ;*/
 }

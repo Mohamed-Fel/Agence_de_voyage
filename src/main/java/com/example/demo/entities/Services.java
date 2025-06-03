@@ -30,7 +30,7 @@ public class Services {
 
     // Relation many-to-many avec Produit
     
-    @ManyToMany(mappedBy = "services")
+    /*@ManyToMany(mappedBy = "services")
     @JsonBackReference
-    private Set<Produit> produits;
+    private Set<Produit> produits;*/
 }

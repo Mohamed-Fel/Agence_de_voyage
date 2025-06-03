@@ -46,6 +46,7 @@ public class Room {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
+    
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "produit_id", nullable = false)

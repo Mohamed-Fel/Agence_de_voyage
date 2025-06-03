@@ -64,7 +64,7 @@ public class ProduitController {
                 initialPrix, categorieId, contratId, serviceIds, images, creatorId ,localisation
             );
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "✅ Agent créé avec succès.");
+            response.put("message", "✅ Produit créé avec succès.");
             response.put("produit", produit);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {

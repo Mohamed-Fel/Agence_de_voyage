@@ -2,6 +2,7 @@ package com.example.demo.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -26,7 +27,8 @@ public class Categorie {
 
     @NotBlank(message = "Le nom de la catégorie est obligatoire")
     private String name;
-    @JsonIgnore
+    /*@JsonIgnore
+    @JsonBackReference
     @OneToMany(mappedBy = "categorie", cascade = CascadeType.ALL)
-    private List<Produit> produits;
+    private List<Produit> produits;*/
 }

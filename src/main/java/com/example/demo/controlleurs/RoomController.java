@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.entities.Localisation;
+import com.example.demo.entities.Logement;
 import com.example.demo.entities.Room;
 import com.example.demo.services.RoomService;
 @RestController
@@ -41,8 +43,15 @@ public class RoomController {
             @RequestParam("logementIds") List<Long> logementIds,
             @RequestParam("produitId") Long produitId,
             @RequestParam("images") List<MultipartFile> imageFiles
+            //*@RequestParam String nameLogement,
+            //@RequestParam double prix
+            
+            
     ) {
         try {
+        	/*Logement logement = new Logement();
+            logement.setName(nameLogement);
+            logement.setPrix(prix);*/
             Room room = new Room();
             room.setName(name);
             room.setCapacite(capacite);
@@ -51,6 +60,7 @@ public class RoomController {
             room.setPrixAdulte(prixAdulte);
             room.setPrixEnfant(prixEnfant);
             room.setAgeMinimal(ageMinimal);
+            //room.setLogement(logement);
 
             Room savedRoom = roomService.addRoom(room, logementIds, produitId, imageFiles);
 
