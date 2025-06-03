@@ -16,7 +16,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private static final String UPLOAD_DIR = "uploads/";
 
-    @Override
+    /*@Override
     public String saveImage(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             throw new IOException("Fichier vide");
@@ -34,5 +34,25 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         // Retourner l’URL ou chemin (ici juste le nom)
         return imageUrl;
+    }*/
+    @Override
+    public String saveImage(MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                throw new IOException("Fichier vide");
+            }
+
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            Path uploadPath = Paths.get(System.getProperty("user.dir"), UPLOAD_DIR);
+            Files.createDirectories(uploadPath);
+
+            Path filePath = uploadPath.resolve(fileName);
+            Files.write(filePath, file.getBytes());
+
+            return "http://localhost:8082/uploads/" + fileName;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Erreur lors de l'enregistrement de l'image", e);
+        }
     }
 }

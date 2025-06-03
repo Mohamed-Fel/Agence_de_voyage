@@ -1,6 +1,8 @@
 package com.example.demo.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,9 +22,9 @@ public class Localisation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double latitude;
-    private Double longitude;
-
+    private double latitude;
+    private double longitude;
+    @JsonIgnore
     @OneToOne(mappedBy = "localisation")
     private Produit produit;
 }

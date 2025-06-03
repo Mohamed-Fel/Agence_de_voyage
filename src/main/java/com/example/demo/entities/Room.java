@@ -2,6 +2,8 @@ package com.example.demo.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,8 +46,12 @@ public class Room {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
-    
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "produit_id", nullable = false)
     private Produit produit;
+    
+    public Long getProduitId() {
+        return produit != null ? produit.getId() : null;
+    }
 }

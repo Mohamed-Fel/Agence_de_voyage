@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.entities.Categorie;
 import com.example.demo.entities.Contrat;
 import com.example.demo.entities.Image;
+import com.example.demo.entities.Localisation;
 import com.example.demo.entities.Produit;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.CategorieRepository;
@@ -42,7 +43,7 @@ public class ProduitServiceImpl implements ProduitService {
     public Produit createProduit(
         String name, String description, String phoneNumber, String email, int nbEtoiles,
         String pays, String ville, String adresse, int initialPrix, Long categorieId,
-        Long contratId, List<Long> serviceIds, List<MultipartFile> images, Long creatorId
+        Long contratId, List<Long> serviceIds, List<MultipartFile> images, Long creatorId ,Localisation localisation
     ) throws Exception {
     	// ✅ Validation du numéro
         if (!phoneNumber.matches("^\\+\\d{1,3}\\d{6,10}$")) {
@@ -59,6 +60,7 @@ public class ProduitServiceImpl implements ProduitService {
         produit.setVille(ville);
         produit.setAdresse(adresse);
         produit.setInitialPrix(initialPrix);
+        produit.setLocalisation(localisation);
 
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new Exception("Créateur non trouvé"));
@@ -97,7 +99,7 @@ public class ProduitServiceImpl implements ProduitService {
     public Produit updateProduit(
         Long id, String name, String description, String phoneNumber, String email, int nbEtoiles,
         String pays, String ville, String adresse, int initialPrix, Long categorieId,
-        Long contratId, List<Long> serviceIds, List<MultipartFile> images, Long creatorId
+        Long contratId, List<Long> serviceIds, List<MultipartFile> images, Long creatorId ,Localisation localisation
     ) throws Exception {
         Produit produit = produitRepository.findById(id)
                 .orElseThrow(() -> new Exception("Produit non trouvé"));
@@ -111,6 +113,7 @@ public class ProduitServiceImpl implements ProduitService {
         produit.setVille(ville);
         produit.setAdresse(adresse);
         produit.setInitialPrix(initialPrix);
+        produit.setLocalisation(localisation);
         if (!phoneNumber.matches("^\\+\\d{1,3}\\d{6,10}$")) {
             throw new IllegalArgumentException("❌ Numéro invalide. Exemple : +21612345678");
         }

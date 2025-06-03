@@ -2,6 +2,8 @@ package com.example.demo.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +28,7 @@ public class Logement {
     @NotNull(message = "Le prix est obligatoire.")
     @Positive(message = "Le prix doit être un nombre positif.")
     private Double  prix;
-    
+    @JsonIgnore
     @ManyToMany(mappedBy = "logements")
     private List<Room> rooms;
 }

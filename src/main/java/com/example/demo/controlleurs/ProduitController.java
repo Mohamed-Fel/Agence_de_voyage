@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.entities.Localisation;
 import com.example.demo.entities.Produit;
 import com.example.demo.services.ProduitService;
 
@@ -49,12 +50,18 @@ public class ProduitController {
         @RequestParam Long contratId,
         @RequestParam List<Long> serviceIds,
         @RequestParam("images") List<MultipartFile> images,
-        @RequestParam Long creatorId
+        @RequestParam Long creatorId,
+        @RequestParam double latitude,
+        @RequestParam double longitude
     ) {
         try {
+        	Localisation localisation = new Localisation();
+            localisation.setLatitude(latitude);
+            localisation.setLongitude(longitude);
+            
             Produit produit = produitService.createProduit(
                 name, description, phoneNumber, email, nbEtoiles, pays, ville, adresse,
-                initialPrix, categorieId, contratId, serviceIds, images, creatorId
+                initialPrix, categorieId, contratId, serviceIds, images, creatorId ,localisation
             );
             Map<String, Object> response = new HashMap<>();
             response.put("message", "✅ Agent créé avec succès.");
@@ -82,13 +89,19 @@ public class ProduitController {
         @RequestParam(required = false) Long contratId,
         @RequestParam(required = false) List<Long> serviceIds,
         @RequestParam(required = false, name = "images") List<MultipartFile> images,
-        @RequestParam(required = false) Long creatorId
+        @RequestParam(required = false) Long creatorId,
+        @RequestParam double latitude,
+        @RequestParam double longitude
     ) {
         try {
+        	
+        	Localisation localisation = new Localisation();
+            localisation.setLatitude(latitude);
+            localisation.setLongitude(longitude);
             Produit updated = produitService.updateProduit(
                 id, name, description, phoneNumber, email, nbEtoiles,
                 pays, ville, adresse, initialPrix,
-                categorieId, contratId, serviceIds, images, creatorId
+                categorieId, contratId, serviceIds, images, creatorId ,localisation
             );
 
             Map<String, Object> response = new HashMap<>();

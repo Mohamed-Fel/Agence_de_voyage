@@ -1,14 +1,21 @@
 package com.example.demo.servicesImpl;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.entities.Admin;
 import com.example.demo.entities.Agent;
 import com.example.demo.entities.Image;
 import com.example.demo.entities.Role;
+import com.example.demo.repositories.AdminRepository;
 import com.example.demo.repositories.ImageRepository;
 import com.example.demo.repositories.RoleRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.services.FileStorageService;
 import com.example.demo.services.UserService;
 
 /*import ManageError.CustomException;*/
@@ -19,12 +26,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ImageRepository imageRepository;
+    private final AdminRepository adminRepository;
+    @Autowired
+    private FileStorageService fileStorageService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository,RoleRepository roleRepository,ImageRepository imageRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,RoleRepository roleRepository,ImageRepository imageRepository, BCryptPasswordEncoder passwordEncoder ,AdminRepository adminRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.imageRepository = imageRepository;
+        this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -71,6 +82,45 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.save(agent);
+    }
+    @Override
+    public Admin editAdminProfile(Long adminId, String userName, String firstName, String lastName, String email, String password, MultipartFile imageFile) throws Exception {
+        Optional<Admin> optionalAdmin = userRepository.findById(adminId).filter(user -> user instanceof Admin).map(user -> (Admin) user);
+        if (optionalAdmin.isEmpty()) {
+            throw new Exception("Admin not found");
+        }
+
+        Admin admin = optionalAdmin.get();
+
+        if (userName != null) admin.setUserName(userName);
+        if (firstName != null) admin.setFirstName(firstName);
+        if (lastName != null) admin.setLastName(lastName);
+        if (email != null) admin.setEmail(email);
+        if (password != null && !password.isBlank()) {
+            admin.setPassword(passwordEncoder.encode(password));
+        }
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.saveImage(imageFile); // méthode pour uploader le fichier et retourner une URL
+            updateAdminImage(admin, imageUrl);
+        }
+
+        return userRepository.save(admin);
+    }
+    public Admin updateAdminImage(Admin admin, String imageUrl) {
+        Image existingImage = admin.getImage();
+        
+        if (existingImage != null) {
+            // Met à jour l'URL de l'image existante
+            existingImage.setImageURL(imageUrl);
+        } else {
+            // Crée une nouvelle image et l’associe
+            Image newImage = new Image();
+            newImage.setImageURL(imageUrl);
+            admin.setImage(newImage);
+        }
+
+        return adminRepository.save(admin);
     }
 
     /*@Override

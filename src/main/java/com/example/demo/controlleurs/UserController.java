@@ -1,6 +1,7 @@
 package com.example.demo.controlleurs;
 
 import com.example.demo.entities.Agent;
+import com.example.demo.entities.Admin;
 import com.example.demo.entities.Image;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.User;
@@ -169,5 +170,25 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
-    
+    @PutMapping("/edit-profile/{id}")
+    public ResponseEntity<?> editProfile(
+            @PathVariable Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String password,
+            @RequestParam(required = false) MultipartFile image
+    ) {
+        try {
+            Admin updatedAdmin = userService.editAdminProfile(id, userName, firstName, lastName, email, password, image);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Profil mis à jour avec succès. Veuillez vous reconnecter pour appliquer les changements.");
+            response.put("updatedUser", updatedAdmin);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erreur : " + e.getMessage());
+        }
+    }
 }

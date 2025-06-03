@@ -58,7 +58,7 @@ public class Produit {
 	    
 	    private int initialPrix;
 	    
-	    @JsonIgnore
+	    
 	    @ManyToOne
 	    @JoinColumn(name = "user_id")
 	    private User creator;
