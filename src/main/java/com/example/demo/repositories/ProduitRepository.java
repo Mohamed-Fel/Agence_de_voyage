@@ -14,8 +14,9 @@ public interface ProduitRepository  extends JpaRepository<Produit, Long>  {
     @Query("SELECT p FROM Produit p WHERE LOWER(p.categorie.name) = LOWER(:nomCategorie)")
     List<Produit> findByCategorieName(@Param("nomCategorie") String nomCategorie);
     
-    @Query("SELECT p FROM Produit p LEFT JOIN FETCH p.images WHERE p.id = :id")
-    Optional<Produit> findByIdWithImages(@Param("id") Long id);
+    /*@Query("SELECT p FROM Produit p LEFT JOIN FETCH p.images WHERE p.id = :id")
+    Optional<Produit> findByIdWithImages(@Param("id") Long id);*/
+    
 
 }
 

@@ -60,6 +60,7 @@ public class ContratController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+    
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateContrat(
@@ -88,7 +89,12 @@ public class ContratController {
             response.put("success", false);
             response.put("message", "Contrat introuvable avec l'ID : " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // ✅ Ici on capture le message personnalisé
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }catch (Exception e) {
             response.put("success", false);
             response.put("message", "Une erreur est survenue lors de la suppression du contrat.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

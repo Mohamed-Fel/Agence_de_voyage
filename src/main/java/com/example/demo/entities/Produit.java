@@ -3,6 +3,7 @@ package com.example.demo.entities;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -24,9 +25,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 @Entity
-@Data 
+@ToString(exclude = "contrat")
+@EqualsAndHashCode(exclude = "contrat")
+@Getter
+@Setter
 @NoArgsConstructor 
 @AllArgsConstructor
 public class Produit {
@@ -65,8 +73,10 @@ public class Produit {
 	    
 	    @ManyToOne
 	    @JoinColumn(name = "categorie_id")
+	    @JsonManagedReference
 	    private Categorie categorie;
 	    
+	    @JsonManagedReference 
 	    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
 	    private List<Image> images;
 	    
@@ -76,16 +86,21 @@ public class Produit {
 	        joinColumns = @JoinColumn(name = "produit_id"),
 	        inverseJoinColumns = @JoinColumn(name = "service_id")
 	    )
+	    @JsonManagedReference 
 	    private List<Services> services;
 	    
 	    @OneToOne(cascade = CascadeType.ALL)
 	    @JoinColumn(name = "localisation_id")
+	    @JsonManagedReference
 	    private Localisation localisation;
 	    
-	    @OneToOne
+	    
+	    @OneToOne(cascade = CascadeType.ALL)
 	    @JoinColumn(name = "contrat_id")
+	    @JsonManagedReference
 	    private Contrat contrat;
 	    
-	    /*@OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<Room> rooms ;*/
+	    @JsonManagedReference 
+	    @OneToMany(mappedBy = "produit", cascade = CascadeType.ALL, orphanRemoval = true)
+	    private List<Room> rooms ;
 }

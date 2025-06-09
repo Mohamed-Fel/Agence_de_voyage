@@ -3,7 +3,11 @@ package com.example.demo.controlleurs;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+
 import com.example.demo.entities.Logement;
+import com.example.demo.repositories.RoomRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,8 @@ public class LogementController {
     
 	@Autowired
     private LogementService logementService;
+	@Autowired
+    private RoomRepository roomRepository;
 
 
     @GetMapping("/logements")
@@ -97,6 +103,45 @@ public class LogementController {
             response.put("message", e.getMessage());
             response.put("success", false);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+    // ✅ Get all logements by roomId
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<?> getLogementsByRoomId(@PathVariable Long roomId) {
+        try {
+            List<Logement> logements = logementService.getLogementsByRoomId(roomId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "✅ Logements trouvés pour la chambre " + roomId);
+            response.put("logements", logements);
+            return ResponseEntity.ok(response);
+        } catch (NoSuchElementException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+    }
+
+    // ✅ Get specific logement by roomId and logementId
+    @GetMapping("/room/{roomId}/logement/{logementId}")
+    public ResponseEntity<?> getLogementByRoomIdAndLogementId(
+        @PathVariable Long roomId,
+        @PathVariable Long logementId
+    ) {
+    	Map<String, Object> response = new HashMap<>();
+    	 // Vérifie si la room existe
+        if (!roomRepository.existsById(roomId)) {
+            response.put("error", "❌ La chambre avec l'ID " + roomId + " n'existe pas.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        try {
+            Logement logement = logementService.getLogementByRoomIdAndLogementId(roomId, logementId);
+            response.put("message", "✅ Logement trouvé pour la chambre " + roomId);
+            response.put("logement", logement);
+            return ResponseEntity.ok(response);
+        } catch (NoSuchElementException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
     }
 }

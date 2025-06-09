@@ -8,7 +8,8 @@ import com.example.demo.entities.Room;
 
 public interface RoomService {
 	
-	Room addRoom(Room room, List<Long> logementIds, Long produitId, List<MultipartFile> imageFiles)throws Exception;
+	/*Room addRoom(Room room, Long produitId, List<MultipartFile> imageFiles)throws Exception;*/
+	Room saveRoomWithoutLogements(Room room, Long produitId, List<MultipartFile> imageFiles) throws Exception;
 	Room getRoomById(Long id);
 	List<Room> getRoomsByProduitId(Long produitId);
 	void deleteRoom(Long roomId);
@@ -24,6 +25,8 @@ public interface RoomService {
 	        int ageMinimal,
 	        Long produitId,
 	        List<Long> logementIds,
+	        List<String> logementNames,
+	        List<Double> logementPrix,
 	        List<MultipartFile> images
 	    ) throws Exception;
 }

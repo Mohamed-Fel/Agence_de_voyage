@@ -13,10 +13,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Data 
+@ToString(exclude = "produits")
+@EqualsAndHashCode(exclude = "produits")
+@Getter
+@Setter
 @NoArgsConstructor 
 @AllArgsConstructor
 public class Services {
@@ -30,7 +37,7 @@ public class Services {
 
     // Relation many-to-many avec Produit
     
-    /*@ManyToMany(mappedBy = "services")
+    @ManyToMany(mappedBy = "services")
     @JsonBackReference
-    private Set<Produit> produits;*/
+    private Set<Produit> produits;
 }

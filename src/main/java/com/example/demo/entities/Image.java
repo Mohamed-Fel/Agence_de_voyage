@@ -2,6 +2,7 @@ package com.example.demo.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,10 +12,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Data // Génère getters, setters, toString, equals, hashCode
+@ToString(exclude = {"produit", "room"})
+@EqualsAndHashCode(exclude = {"produit", "room"})
+@Getter
+@Setter // Génère getters, setters, toString, equals, hashCode
 @NoArgsConstructor // Génère un constructeur vide
 @AllArgsConstructor
 public class Image {
@@ -27,10 +35,10 @@ public class Image {
     
     @ManyToOne
     @JoinColumn(name = "produit_id")
-    @JsonIgnore
+    @JsonBackReference
     private Produit produit;
     
-    @JsonIgnore
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "room_id") // Clé étrangère
     private Room room;

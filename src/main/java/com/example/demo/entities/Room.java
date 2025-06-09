@@ -1,8 +1,11 @@
 package com.example.demo.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -16,9 +19,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 @Entity
-@Data
+@ToString(exclude = "produit")
+@EqualsAndHashCode(exclude = "produit")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Room {
@@ -34,20 +44,26 @@ public class Room {
     private double prixAdulte;
     private double prixEnfant;
     private int ageMinimal;
+    /*@JsonIgnore
+    @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
+    private List<Logement> logements;*/
+    /*@JsonIgnore
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images;*/
     
-    @ManyToMany
-    @JoinTable(
-        name = "room_logement",
-        joinColumns = @JoinColumn(name = "room_id"),
-        inverseJoinColumns = @JoinColumn(name = "logement_id")
-    )
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Logement> logements;
     
-
+    @JsonManagedReference
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
     
-    @JsonIgnore
+    /*@OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "room_id") // la FK sera dans la table "image"
+    private List<Image> images = new ArrayList<>();*/
+    
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "produit_id", nullable = false)
     private Produit produit;
@@ -55,4 +71,5 @@ public class Room {
     public Long getProduitId() {
         return produit != null ? produit.getId() : null;
     }
+    
 }

@@ -14,9 +14,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 @Entity
-@Data
+@ToString(exclude = "produits")
+@EqualsAndHashCode(exclude = "produits")
+@Getter
+@Setter     
 @NoArgsConstructor
 @AllArgsConstructor
 public class Categorie {
@@ -27,8 +34,8 @@ public class Categorie {
 
     @NotBlank(message = "Le nom de la catégorie est obligatoire")
     private String name;
-    /*@JsonIgnore
+    
     @JsonBackReference
     @OneToMany(mappedBy = "categorie", cascade = CascadeType.ALL)
-    private List<Produit> produits;*/
+    private List<Produit> produits;
 }

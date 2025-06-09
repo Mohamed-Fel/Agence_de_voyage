@@ -51,11 +51,18 @@ public class ContratServiceImpl implements ContratService {
     public void deleteContrat(Long id) {
         Contrat contrat = contratRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Contrat introuvable avec l'ID : " + id));
+        if (contrat.getProduit() != null) {
+            throw new RuntimeException("Impossible de supprimer le contrat : un produit y est encore lié. Veuillez d'abord supprimer le produit.");
+        }
         contratRepository.delete(contrat);
     }
-    @Override
+    /*@Override
     public List<Contrat> getContratsNonAssignes() {
         return contratRepository.findContratsSansProduit();
+    }*/
+    @Override
+    public List<Contrat> getContratsNonAssignes() {
+        return contratRepository.findContratsNotAssignedToProduit();
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.example.demo.entities.Services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,12 +21,14 @@ import com.example.demo.entities.Produit;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.CategorieRepository;
 import com.example.demo.repositories.ContratRepository;
+import com.example.demo.repositories.ImageRepository;
 import com.example.demo.repositories.ProduitRepository;
 import com.example.demo.repositories.ServicesRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.FileStorageService;
 import com.example.demo.services.ProduitService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,6 +41,8 @@ public class ProduitServiceImpl implements ProduitService {
     private final ContratRepository contratRepository;
     private final FileStorageService fileStorageService;
     private final UserRepository userRepository;
+    @Autowired
+    ImageRepository imageRepository;
 
     @Override
     public Produit createProduit(
@@ -83,16 +88,26 @@ public class ProduitServiceImpl implements ProduitService {
         Produit savedProduit = produitRepository.save(produit);
 
         List<Image> imageEntities = new ArrayList<>();
-        for (MultipartFile file : images) {
+        /*for (MultipartFile file : images) {
             String imageUrl = fileStorageService.saveImage(file);
             Image image = new Image();
             image.setImageURL(imageUrl);
             image.setProduit(savedProduit);
             imageEntities.add(image);
+        }*/
+        
+        // Sauvegarder les images associées
+        for (MultipartFile file : images) {
+            String imageUrl = fileStorageService.saveImage(file);
+            Image image = new Image();
+            image.setImageURL(imageUrl);
+            image.setProduit(savedProduit);
+            imageRepository.save(image);
         }
         savedProduit.setImages(imageEntities);
 
-        return produitRepository.save(savedProduit);
+
+        return savedProduit;
     }
     
     @Override
@@ -141,7 +156,7 @@ public class ProduitServiceImpl implements ProduitService {
             produit.setServices(services);
         }
 
-        if (images != null && !images.isEmpty()) {
+        /*if (images != null && !images.isEmpty()) {
             List<Image> imageEntities = new ArrayList<>();
             for (MultipartFile file : images) {
                 String imageUrl = fileStorageService.saveImage(file);
@@ -152,6 +167,19 @@ public class ProduitServiceImpl implements ProduitService {
             }
             produit.getImages().clear();
             produit.getImages().addAll(imageEntities);
+        }*/
+        // Supprimer les anciennes images liées à ce produit
+        imageRepository.deleteByProduit(produit);
+
+        // Ajouter les nouvelles images si fournies
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                String imageUrl = fileStorageService.saveImage(file);
+                Image image = new Image();
+                image.setImageURL(imageUrl);
+                image.setProduit(produit);
+                imageRepository.save(image);
+            }
         }
 
         return produitRepository.save(produit);
@@ -164,6 +192,7 @@ public class ProduitServiceImpl implements ProduitService {
     public void deleteProduit(Long id) {
         Produit produit = produitRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Produit introuvable avec l'ID : " + id));
+      
         produitRepository.delete(produit);
     }
     @Override

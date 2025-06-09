@@ -28,18 +28,57 @@ public class RoomServiceImpl implements RoomService {
 
     @Autowired
     private LogementRepository logementRepository;
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Autowired
     private ProduitRepository produitRepository;
 
     @Autowired
     private FileStorageService fileStorageService;
+    /*public Room saveRoomWithoutLogements(Room room, Long produitId, List<MultipartFile> imageFiles) throws Exception {
+        Produit produit = produitRepository.findById(produitId)
+                .orElseThrow(() -> new RuntimeException("Produit non trouvé avec l'id : " + produitId));
+        room.setProduit(produit);
 
-    @Override
-    public Room addRoom(Room room, List<Long> logementIds, Long produitId, List<MultipartFile> imageFiles)throws Exception {
-        // 🔗 Récupérer les logements
-        List<Logement> logements = logementRepository.findAllById(logementIds);
-        room.setLogements(logements);
+        // Sauvegarder les images comme avant
+        List<Image> images = new ArrayList<>();
+        for (MultipartFile file : imageFiles) {
+            String imageUrl = fileStorageService.saveImage(file);
+            Image image = new Image();
+            image.setImageURL(imageUrl);
+            image.setRoom(room);
+            images.add(image);
+        }
+        room.setImages(images);
+
+        // Ici on sauvegarde sans les logements (car room.logements est vide)
+        return roomRepository.save(room);
+    }*/
+    public Room saveRoomWithoutLogements(Room room, Long produitId, List<MultipartFile> imageFiles) throws Exception {
+        Produit produit = produitRepository.findById(produitId)
+            .orElseThrow(() -> new RuntimeException("Produit non trouvé avec l'id : " + produitId));
+        room.setProduit(produit);
+
+        // Enregistrer la chambre en premier (pour avoir l'ID)
+        Room savedRoom = roomRepository.save(room);
+
+        // Enregistrer les images associées
+        for (MultipartFile file : imageFiles) {
+            String imageUrl = fileStorageService.saveImage(file);
+            Image image = new Image();
+            image.setImageURL(imageUrl);
+            image.setRoom(savedRoom);
+            imageRepository.save(image);
+        }
+
+        return savedRoom;
+    }
+
+
+    /*@Override
+    public Room addRoom(Room room, Long produitId, List<MultipartFile> imageFiles)throws Exception {
+        
 
         // 🏨 Associer le produit
         Produit produit = produitRepository.findById(produitId)
@@ -59,7 +98,7 @@ public class RoomServiceImpl implements RoomService {
 
         // 💾 Sauvegarder la room avec cascade sur les images
         return roomRepository.save(room);
-    }
+    }*/
     @Override
     public Room getRoomById(Long id) {
         if (id == null || id <= 0) {
@@ -88,6 +127,7 @@ public class RoomServiceImpl implements RoomService {
         if (roomOptional.isEmpty()) {
             throw new IllegalArgumentException("❌ Aucune chambre trouvée avec l'ID : " + roomId);
         }
+        
 
         roomRepository.deleteById(roomId);
     }
@@ -102,7 +142,9 @@ public class RoomServiceImpl implements RoomService {
         double prixEnfant,
         int ageMinimal,
         Long produitId,
-        List<Long> logementIds,
+        List<Long> logementIds,           // IDs des logements existants à rattacher
+        List<String> logementNames,       // Noms des nouveaux logements à créer
+        List<Double> logementPrix,        // Prix des nouveaux logements à créer
         List<MultipartFile> images
     ) throws Exception {
 
@@ -112,8 +154,21 @@ public class RoomServiceImpl implements RoomService {
         Produit produit = produitRepository.findById(produitId)
             .orElseThrow(() -> new RuntimeException("❌ Produit non trouvé avec l'ID : " + produitId));
 
-        List<Logement> logements = logementIds != null ?
+        // 1. Récupérer les logements existants par leurs IDs (s'ils sont fournis)
+        List<Logement> logements = logementIds != null && !logementIds.isEmpty() ?
             logementRepository.findAllById(logementIds) : new ArrayList<>();
+
+        // 2. Créer les nouveaux logements (s'ils sont fournis)
+        if (logementNames != null && logementPrix != null && logementNames.size() == logementPrix.size()) {
+            for (int i = 0; i < logementNames.size(); i++) {
+                Logement newLogement = new Logement();
+                newLogement.setName(logementNames.get(i));
+                newLogement.setPrix(logementPrix.get(i));
+                newLogement.setRoom(room);// Rattacher à la chambre avant sauvegarde (si bidirectionnel)
+                logementRepository.save(newLogement);
+                logements.add(newLogement); // Ajouter à la liste des logements rattachés à la chambre
+            }
+        }
 
         room.setName(name);
         room.setCapacite(capacite);
@@ -123,9 +178,27 @@ public class RoomServiceImpl implements RoomService {
         room.setPrixEnfant(prixEnfant);
         room.setAgeMinimal(ageMinimal);
         room.setProduit(produit);
-        room.setLogements(logements);
+        
+        /*// Mettre à jour la liste des logements (modifiée)
+        if (room.getLogements() == null) {
+            room.setLogements(new ArrayList<>());
+        }
+        room.getLogements().clear();
+        room.getLogements().addAll(logements);
 
-        // Supprimer les anciennes images
+        // Mettre à jour la relation inverse pour chaque logement
+        for (Logement logement : logements) {
+            logement.setRoom(room);
+        	
+        }*/
+        // Mettre à jour les logements (relation unidirectionnelle depuis Logement uniquement)
+        for (Logement logement : logements) {
+            logement.setRoom(room);
+            logementRepository.save(logement);
+        }
+
+
+        /*// Supprimer les anciennes images
         if (room.getImages() != null) {
             room.getImages().clear();
         }
@@ -145,8 +218,24 @@ public class RoomServiceImpl implements RoomService {
                 newImage.setRoom(room);
                 room.getImages().add(newImage); // ne pas remplacer la liste, juste ajouter
             }
+        }*/
+        // 🔥 SUPPRIMER les anciennes images associées à cette chambre
+        //imageRepository.deleteByRoom(room);
+        if (room.getImages() != null) {
+            room.getImages().clear(); // supprime les anciennes images
         }
 
+        // 📸 Ajouter les nouvelles images
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                String imageUrl = fileStorageService.saveImage(file);
+                Image newImage = new Image();
+                newImage.setImageURL(imageUrl);
+                newImage.setRoom(room);
+                imageRepository.save(newImage);
+                //room.getImages().add(newImage);
+            }
+        }
         return roomRepository.save(room);
     }
     @Override

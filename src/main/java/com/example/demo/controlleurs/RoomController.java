@@ -1,8 +1,10 @@
 package com.example.demo.controlleurs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.entities.Localisation;
 import com.example.demo.entities.Logement;
 import com.example.demo.entities.Room;
+import com.example.demo.repositories.LogementRepository;
 import com.example.demo.services.RoomService;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -30,8 +33,10 @@ import com.example.demo.services.RoomService;
 public class RoomController {
 	@Autowired
     private RoomService roomService;
+	@Autowired
+	private LogementRepository logementRepository;
 
-    @PostMapping(value = "/add", consumes = "multipart/form-data")
+    /*@PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<?> addRoom(
             @RequestParam("name") String name,
             @RequestParam("capacite") int capacite,
@@ -40,18 +45,17 @@ public class RoomController {
             @RequestParam("prixAdulte") double prixAdulte,
             @RequestParam("prixEnfant") double prixEnfant,
             @RequestParam("ageMinimal") int ageMinimal,
-            @RequestParam("logementIds") List<Long> logementIds,
+            //@RequestParam("logementIds") List<Long> logementIds,
+            @RequestParam("logementNames") List<String> logementNames,
+            @RequestParam("logementPrix") List<Double> logementPrix,
             @RequestParam("produitId") Long produitId,
             @RequestParam("images") List<MultipartFile> imageFiles
-            //*@RequestParam String nameLogement,
-            //@RequestParam double prix
+           
             
             
     ) {
         try {
-        	/*Logement logement = new Logement();
-            logement.setName(nameLogement);
-            logement.setPrix(prix);*/
+        	
             Room room = new Room();
             room.setName(name);
             room.setCapacite(capacite);
@@ -61,8 +65,18 @@ public class RoomController {
             room.setPrixEnfant(prixEnfant);
             room.setAgeMinimal(ageMinimal);
             //room.setLogement(logement);
+            // Créer les logements à partir des paramètres
+            List<Logement> logements = new ArrayList<>();
+            for (int i = 0; i < logementNames.size(); i++) {
+                Logement logement = new Logement();
+                logement.setName(logementNames.get(i));
+                logement.setPrix(logementPrix.get(i));
+                logement.setRoom(room); // très important pour cascade
+                logements.add(logement);
+            }
+            room.setLogements(logements);
 
-            Room savedRoom = roomService.addRoom(room, logementIds, produitId, imageFiles);
+            Room savedRoom = roomService.addRoom(room, produitId, imageFiles);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "✅ Chambre ajoutée avec succès.");
@@ -74,7 +88,118 @@ public class RoomController {
                     Map.of("error", "❌ Erreur lors de l'ajout de la chambre : " + e.getMessage())
             );
         }
-    }
+    }*/
+	@PostMapping(value = "/add", consumes = "multipart/form-data") 
+	// Méthode HTTP POST exposée sur l'endpoint /add qui accepte des données de type multipart/form-data (pour gérer les fichiers)
+	public ResponseEntity<?> addRoom(
+	        @RequestParam("name") String name,                  // Nom de la chambre envoyé par le formulaire
+	        @RequestParam("capacite") int capacite,             // Capacité de la chambre
+	        @RequestParam("description") String description,    // Description de la chambre
+	        @RequestParam("nbDeLit") int nbDeLit,               // Nombre de lits dans la chambre
+	        @RequestParam("prixAdulte") double prixAdulte,      // Prix adulte
+	        @RequestParam("prixEnfant") double prixEnfant,      // Prix enfant
+	        @RequestParam("ageMinimal") int ageMinimal,         // Âge minimal pour la chambre
+	        @RequestParam("logementNames") List<String> logementNames, // Liste des noms des logements associés (peut être plusieurs)
+	        @RequestParam("logementPrix") List<Double> logementPrix,   // Liste des prix correspondants aux logements
+	        @RequestParam("produitId") Long produitId,          // ID du produit auquel la chambre est associée
+	        @RequestParam("images") List<MultipartFile> imageFiles      // Liste des fichiers images uploadés
+	) {
+	    try {
+	        // Création d'une instance Room et assignation des valeurs reçues
+	        Room room = new Room();
+	        room.setName(name);
+	        room.setCapacite(capacite);
+	        room.setDescription(description);
+	        room.setNbDeLit(nbDeLit);
+	        room.setPrixAdulte(prixAdulte);
+	        room.setPrixEnfant(prixEnfant);
+	        room.setAgeMinimal(ageMinimal);
+
+	        // Sauvegarder la Room dans la base (sans les logements), pour obtenir un id et pouvoir y associer les logements
+	        Room savedRoom = roomService.saveRoomWithoutLogements(room, produitId, imageFiles);
+	        System.out.println("✅ Room sauvegardée : " + savedRoom);
+
+	        // Préparer la liste des logements à associer à cette Room
+	        List<Logement> logements = new ArrayList<>();
+
+	        // Parcours des listes logementNames et logementPrix pour créer ou récupérer les logements existants
+	        for (int i = 0; i < logementNames.size(); i++) {
+	            String logName = logementNames.get(i);    // Nom du logement i
+	            Double logPrix = logementPrix.get(i);    // Prix du logement i
+
+	            // Recherche en base d'un logement avec ce nom et ce prix
+	            List<Logement> existingLogementOpt = logementRepository.findByNameAndPrix(logName, logPrix);
+
+	            /*Logement logement;
+	            if (existingLogementOpt.isPresent()) {
+	                // Si un logement existe déjà avec ce nom et prix,
+	                // on récupère ce logement existant
+	                logement = existingLogementOpt.get();
+	                // Puis on modifie son association pour le rattacher à la nouvelle Room créée
+	                logement.setRoom(savedRoom);
+	                
+	            } else {
+	                // Sinon, on crée un nouveau logement avec les infos reçues
+	                logement = new Logement();
+	                logement.setName(logName);
+	                logement.setPrix(logPrix);
+	                // On l'associe à la Room nouvellement créée
+	                logement.setRoom(savedRoom);
+	                
+	            }
+	            // On ajoute ce logement (existant ou nouveau) à la liste à sauvegarder
+	            logements.add(logement);*/
+	            Logement logementToUse;
+
+	            if (!existingLogementOpt.isEmpty()) {
+	                // Cherche un logement non encore associé à une room
+	                Optional<Logement> unassigned = existingLogementOpt.stream()
+	                        .filter(log -> log.getRoom() == null)
+	                        .findFirst();
+
+	                if (unassigned.isPresent()) {
+	                    logementToUse = unassigned.get();
+	                    logementToUse.setRoom(savedRoom);
+	                    logements.add(logementToUse);
+	                } else {
+	                    // Tous les logements sont déjà associés, on en crée un nouveau
+	                    Logement newLogement = new Logement();
+	                    newLogement.setName(logName);
+	                    newLogement.setPrix(logPrix);
+	                    newLogement.setRoom(savedRoom);
+	                    logements.add(newLogement);
+	                }
+	            } else {
+	                // Aucun logement trouvé, on en crée un nouveau
+	                Logement newLogement = new Logement();
+	                newLogement.setName(logName);
+	                newLogement.setPrix(logPrix);
+	                newLogement.setRoom(savedRoom);
+	                logements.add(newLogement);
+	            }
+	        }
+
+	        // Sauvegarder en base tous les logements (ceux modifiés et ceux créés)
+	        logementRepository.saveAll(logements);
+
+	        // Optionnel : Mettre à jour la liste de logements de la Room sauvegardée pour refléter les changements
+	        //savedRoom.setLogements(logements);
+
+	        // Préparer la réponse HTTP contenant un message succès et la Room créée
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("message", "✅ Chambre ajoutée avec succès, logements associés mis à jour.");
+	        response.put("room", savedRoom);
+
+	        // Retourner un code 201 Created avec la réponse
+	        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+	    } catch (Exception e) {
+	        // En cas d'erreur, renvoyer un code 400 Bad Request avec un message d'erreur détaillé
+	        return ResponseEntity.badRequest().body(
+	                Map.of("error", "❌ Erreur lors de l'ajout de la chambre : " + e.getMessage())
+	        );
+	    }
+	}
     @GetMapping("/{id}")
     public ResponseEntity<?> getRoomById(@PathVariable Long id) {
         try {
@@ -161,12 +286,14 @@ public class RoomController {
         @RequestParam int ageMinimal,
         @RequestParam Long produitId,
         @RequestParam(required = false) List<Long> logementIds,
+        @RequestParam(required = false) List<String> logementNames,
+        @RequestParam(required = false) List<Double> logementPrix,
         @RequestParam(required = false) List<MultipartFile> images
     ) {
         try {
             Room updatedRoom = roomService.updateRoom(
                 id, name, capacite, description, nbDeLit, prixAdulte, prixEnfant,
-                ageMinimal, produitId, logementIds, images
+                ageMinimal, produitId, logementIds, logementNames, logementPrix, images
             );
 
             Map<String, Object> response = new HashMap<>();

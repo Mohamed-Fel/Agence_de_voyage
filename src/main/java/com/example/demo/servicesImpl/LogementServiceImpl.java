@@ -3,17 +3,20 @@ package com.example.demo.servicesImpl;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entities.Logement;
 import com.example.demo.repositories.LogementRepository;
+import com.example.demo.repositories.RoomRepository;
 import com.example.demo.services.LogementService;
 
 @Service
 public class LogementServiceImpl implements LogementService {
 
     private final LogementRepository logementRepository;
+    @Autowired
+    private RoomRepository roomRepository;
 
     public LogementServiceImpl(LogementRepository logementRepository) {
         this.logementRepository = logementRepository;
@@ -32,9 +35,9 @@ public class LogementServiceImpl implements LogementService {
 
     @Override
     public Logement addLogement(Logement logement) throws Exception {
-        if (logementRepository.existsByName(logement.getName())) {
+        /*if (logementRepository.existsByName(logement.getName())) {
             throw new IllegalArgumentException("Le nom du logement existe déjà.");
-        }
+        }*/
         return logementRepository.save(logement);
     }
 
@@ -44,13 +47,19 @@ public class LogementServiceImpl implements LogementService {
                 .orElseThrow(() -> new NoSuchElementException("Logement introuvable avec l'ID : " + id));
 
         // Vérifier que le nouveau nom (s'il est changé) n'existe pas déjà sur un autre logement
-        if (!existing.getName().equals(logement.getName()) && logementRepository.existsByName(logement.getName())) {
+        if (logement.getName() != null && !logement.getName().equals(existing.getName())
+                && logementRepository.existsByName(logement.getName())) {
             throw new IllegalArgumentException("Le nom du logement existe déjà.");
         }
 
-        existing.setName(logement.getName());
-        existing.setPrix(logement.getPrix());
-        existing.setRooms(logement.getRooms());
+        // Mise à jour partielle uniquement des champs non null reçus
+        if (logement.getName() != null) {
+            existing.setName(logement.getName());
+        }
+
+        if (logement.getPrix() != null) {
+            existing.setPrix(logement.getPrix());
+        }
 
         return logementRepository.save(existing);
     }
@@ -60,5 +69,22 @@ public class LogementServiceImpl implements LogementService {
         Logement existing = logementRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Logement introuvable avec l'ID : " + id));
         logementRepository.delete(existing);
+    }
+    @Override
+    public List<Logement> getLogementsByRoomId(Long roomId) {
+        if (!roomRepository.existsById(roomId)) {
+            throw new NoSuchElementException("❌ Chambre avec ID " + roomId + " n'existe pas.");
+        }
+        return logementRepository.findByRoom_Id(roomId);
+    }
+    @Override
+    public Logement getLogementByRoomIdAndLogementId(Long roomId, Long logementId) {
+        if (!roomRepository.existsById(roomId)) {
+            throw new NoSuchElementException("❌ La chambre avec l'ID " + roomId + " n'existe pas.");
+        }
+
+        return logementRepository.findByIdAndRoom_Id(logementId, roomId)
+            .orElseThrow(() -> new NoSuchElementException(
+                "❌ Aucun logement avec ID " + logementId + " associé à la chambre " + roomId));
     }
 }

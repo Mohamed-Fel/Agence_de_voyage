@@ -15,5 +15,5 @@ public interface ContratService {
 	 Contrat getContratByNomProduit(String nomProduit);
 	 Contrat getContratById(Long id);
 	 List<Contrat> getContratsNonAssignes();
-	 
+
 }

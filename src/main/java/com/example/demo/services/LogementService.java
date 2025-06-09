@@ -9,5 +9,7 @@ public interface LogementService {
     Logement addLogement(Logement logement) throws Exception;
     Logement updateLogement(Long id, Logement logement) throws Exception;
     void deleteLogement(Long id) throws Exception;
+    List<Logement> getLogementsByRoomId(Long roomId);
+    Logement getLogementByRoomIdAndLogementId(Long roomId, Long logementId);
 }
 
