@@ -111,6 +111,7 @@ public class ProduitServiceImpl implements ProduitService {
     }
     
     @Override
+    @Transactional
     public Produit updateProduit(
         Long id, String name, String description, String phoneNumber, String email, int nbEtoiles,
         String pays, String ville, String adresse, int initialPrix, Long categorieId,

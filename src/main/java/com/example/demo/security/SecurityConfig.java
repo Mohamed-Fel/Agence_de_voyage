@@ -2,6 +2,7 @@ package com.example.demo.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,8 +38,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                /*.requestMatchers("/produits/{id}").permitAll()
+                .requestMatchers("/produits/by-categorie").permitAll()
+                .requestMatchers("/produits/all").permitAll()*/
+                .requestMatchers(HttpMethod.GET, "/produits/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                 .requestMatchers("/manage/**").hasRole("ADMIN")
-                .requestMatchers("/contrats/**").hasRole("ADMIN")
+                //.requestMatchers("/contrats/**").hasRole("ADMIN")
                 .requestMatchers("/api/users/agent").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/agent/**").hasRole("AGENT")

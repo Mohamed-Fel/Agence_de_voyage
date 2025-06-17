@@ -12,6 +12,7 @@ import com.example.demo.entities.Agent;
 import com.example.demo.entities.Image;
 import com.example.demo.entities.Role;
 import com.example.demo.repositories.AdminRepository;
+import com.example.demo.repositories.AgentRepository;
 import com.example.demo.repositories.ImageRepository;
 import com.example.demo.repositories.RoleRepository;
 import com.example.demo.repositories.UserRepository;
@@ -27,6 +28,8 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final ImageRepository imageRepository;
     private final AdminRepository adminRepository;
+    @Autowired
+    AgentRepository agentRepository;
     @Autowired
     private FileStorageService fileStorageService;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -121,6 +124,45 @@ public class UserServiceImpl implements UserService {
         }
 
         return adminRepository.save(admin);
+    }
+    
+    @Override
+    public Agent editAgentProfile(Long agentId, String userName, String firstName, String lastName, String email, String password, MultipartFile imageFile) throws Exception {
+        Optional<Agent> optionalAgent = userRepository.findById(agentId).filter(user -> user instanceof Agent).map(user -> (Agent) user);
+        if (optionalAgent.isEmpty()) {
+            throw new Exception("Agent non trouvé");
+        }
+
+        Agent agent = optionalAgent.get();
+
+        if (userName != null) agent.setUserName(userName);
+        if (firstName != null) agent.setFirstName(firstName);
+        if (lastName != null) agent.setLastName(lastName);
+        if (email != null) agent.setEmail(email);
+        if (password != null && !password.isBlank()) {
+            agent.setPassword(passwordEncoder.encode(password));
+        }
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.saveImage(imageFile);
+            updateAgentImage(agent, imageUrl);
+        }
+
+        return userRepository.save(agent);
+    }
+
+    public Agent updateAgentImage(Agent agent, String imageUrl) {
+        Image existingImage = agent.getImage();
+
+        if (existingImage != null) {
+            existingImage.setImageURL(imageUrl);
+        } else {
+            Image newImage = new Image();
+            newImage.setImageURL(imageUrl);
+            agent.setImage(newImage);
+        }
+
+        return agentRepository.save(agent);
     }
 
     /*@Override

@@ -18,18 +18,7 @@ public class ImageServiceImpl implements ImageService{
     @Autowired
     private ImageRepository imageRepository;
     
-    /*@Override
-    public List<Image> getImagesByProduitId(Long produitId) throws Exception {
-        Produit produit = produitRepository.findById(produitId)
-                .orElseThrow(() -> new Exception("Produit non trouvé avec id : " + produitId));
-        return produit.getImages();
-    }*/
-    /*@Override
-    public List<Image> getImagesByProduitId(Long produitId) throws Exception {
-        Produit produit = produitRepository.findByIdWithImages(produitId)
-                .orElseThrow(() -> new Exception("Produit non trouvé avec id : " + produitId));
-        return produit.getImages();
-    }*/
+ 
     @Override
     public List<Image> getImagesByProduitId(Long produitId) throws Exception {
         List<Image> images = imageRepository.findByProduitId(produitId);
@@ -37,6 +26,21 @@ public class ImageServiceImpl implements ImageService{
             throw new Exception("Aucune image trouvée pour le produit avec id : " + produitId);
         }
         return images;
+    }
+    @Override
+    public List<Image> getImagesByRoomId(Long roomId) throws Exception {
+        List<Image> images = imageRepository.findByRoomId(roomId);
+        if (images.isEmpty()) {
+            throw new Exception("Aucune image trouvée pour la chambre avec id : " + roomId);
+        }
+        return images;
+    }
+    @Override
+    public void deleteImageById(Long imageId) throws Exception {
+        if (!imageRepository.existsById(imageId)) {
+            throw new Exception("Image introuvable avec l'id : " + imageId);
+        }
+        imageRepository.deleteById(imageId);
     }
 
 }

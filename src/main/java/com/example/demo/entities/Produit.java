@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -45,7 +46,7 @@ public class Produit {
 
 	    @NotBlank(message = "Le nom est obligatoire")
 	    private String name;
-
+	    @Lob
 	    private String description;
 
 	    @Pattern(regexp = "^(\\+\\d{1,3})?\\d{8,14}$", message = "Le numéro de téléphone est invalide")

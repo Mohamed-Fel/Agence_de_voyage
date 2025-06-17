@@ -191,4 +191,25 @@ public class UserController {
             return ResponseEntity.badRequest().body("Erreur : " + e.getMessage());
         }
     }
+    @PutMapping("/edit-profileAgent/{id}")
+    public ResponseEntity<?> editAgentProfile(
+            @PathVariable Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String password,
+            @RequestParam(required = false) MultipartFile image
+    ) {
+        try {
+            Agent updatedAgent = userService.editAgentProfile(id, userName, firstName, lastName, email, password, image);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "✅ Profil agent mis à jour avec succès.");
+            response.put("updatedAgent", updatedAgent);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("❌ Erreur : " + e.getMessage());
+        }
+    }
 }

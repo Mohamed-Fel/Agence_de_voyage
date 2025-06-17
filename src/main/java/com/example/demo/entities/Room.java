@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -25,8 +26,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 @Entity
-@ToString(exclude = "produit")
-@EqualsAndHashCode(exclude = "produit")
+@ToString(exclude = {"produit", "reservations"})
+@EqualsAndHashCode(exclude = {"produit" ,"reservations"})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,6 +40,7 @@ public class Room {
 
     private String name;
     private int capacite;
+    @Lob
     private String description;
     private int nbDeLit;
     private double prixAdulte;
@@ -67,6 +69,10 @@ public class Room {
     @ManyToOne
     @JoinColumn(name = "produit_id", nullable = false)
     private Produit produit;
+    
+    @ManyToMany(mappedBy = "rooms")
+    @JsonBackReference
+    private List<Reservation> reservations;
     
     public Long getProduitId() {
         return produit != null ? produit.getId() : null;
