@@ -170,7 +170,7 @@ public class ProduitServiceImpl implements ProduitService {
             produit.getImages().addAll(imageEntities);
         }*/
         // Supprimer les anciennes images liées à ce produit
-        imageRepository.deleteByProduit(produit);
+        //imageRepository.deleteByProduit(produit);
 
         // Ajouter les nouvelles images si fournies
         if (images != null && !images.isEmpty()) {

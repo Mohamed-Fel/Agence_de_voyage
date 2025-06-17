@@ -108,6 +108,11 @@ public class ProduitController {
             response.put("message", "✅ Produit mis à jour avec succès.");
             response.put("produit", updated);
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            // Pour les erreurs comme numéro invalide
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "❌ Données invalides : " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
 
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();

@@ -221,9 +221,9 @@ public class RoomServiceImpl implements RoomService {
         }*/
         // 🔥 SUPPRIMER les anciennes images associées à cette chambre
         //imageRepository.deleteByRoom(room);
-        if (room.getImages() != null) {
+        /*if (room.getImages() != null) {
             room.getImages().clear(); // supprime les anciennes images
-        }
+        }*/
 
         // 📸 Ajouter les nouvelles images
         if (images != null && !images.isEmpty()) {
