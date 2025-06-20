@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ public interface ProduitService {
 	    ) throws Exception;
 	Optional<Produit> findById(Long id);
 	List<Produit> getProduitsByCategorieName(String nomCategorie);
+	List<Produit> getProduitsDisponiblesParCategorieEtDates(String nomCategorie, LocalDate checkIn, LocalDate checkOut);
 	void deleteProduit(Long id);
 	List<Produit> getAllProduits();
 }

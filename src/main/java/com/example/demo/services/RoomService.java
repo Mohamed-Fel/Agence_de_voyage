@@ -29,5 +29,6 @@ public interface RoomService {
 	        List<Double> logementPrix,
 	        List<MultipartFile> images
 	    ) throws Exception;
+	
 }
 

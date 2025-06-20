@@ -2,6 +2,7 @@ package com.example.demo.servicesImpl;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,6 +134,71 @@ public class RoomServiceImpl implements RoomService {
     }
     @Override
     public Room updateRoom(
+            Long id,
+            String name,
+            int capacite,
+            String description,
+            int nbDeLit,
+            double prixAdulte,
+            double prixEnfant,
+            int ageMinimal,
+            Long produitId,
+            List<Long> logementIds,
+            List<String> logementNames,
+            List<Double> logementPrix,
+            List<MultipartFile> images
+    ) throws Exception {
+
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("❌ Chambre non trouvée avec l'ID : " + id));
+
+        Produit produit = produitRepository.findById(produitId)
+                .orElseThrow(() -> new RuntimeException("❌ Produit non trouvé avec l'ID : " + produitId));
+
+        // 🛠️ Mettre à jour les champs de la chambre
+        room.setName(name);
+        room.setCapacite(capacite);
+        room.setDescription(description);
+        room.setNbDeLit(nbDeLit);
+        room.setPrixAdulte(prixAdulte);
+        room.setPrixEnfant(prixEnfant);
+        room.setAgeMinimal(ageMinimal);
+        room.setProduit(produit);
+
+        // 🧹 Supprimer proprement les anciens logements avec iterator
+        Iterator<Logement> iterator = room.getLogements().iterator();
+        while (iterator.hasNext()) {
+            Logement oldLogement = iterator.next();
+            iterator.remove(); // Déclenche orphanRemoval
+        }
+
+        // ✅ Ajouter uniquement les nouveaux logements passés dans la requête
+        if (logementNames != null && logementPrix != null && logementNames.size() == logementPrix.size()) {
+            for (int i = 0; i < logementNames.size(); i++) {
+                Logement newLogement = new Logement();
+                newLogement.setName(logementNames.get(i));
+                newLogement.setPrix(logementPrix.get(i));
+                newLogement.setRoom(room); // Lier à la chambre
+                room.getLogements().add(newLogement); // Ajouter à la liste existante
+            }
+        }
+
+        // 📸 Sauvegarder les images
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                String imageUrl = fileStorageService.saveImage(file);
+                Image newImage = new Image();
+                newImage.setImageURL(imageUrl);
+                newImage.setRoom(room);
+                imageRepository.save(newImage);
+            }
+        }
+
+        return roomRepository.save(room);
+    }
+    
+    /*@Override
+    public Room updateRoom(
         Long id,
         String name,
         int capacite,
@@ -178,52 +244,7 @@ public class RoomServiceImpl implements RoomService {
         room.setPrixEnfant(prixEnfant);
         room.setAgeMinimal(ageMinimal);
         room.setProduit(produit);
-        
-        /*// Mettre à jour la liste des logements (modifiée)
-        if (room.getLogements() == null) {
-            room.setLogements(new ArrayList<>());
-        }
-        room.getLogements().clear();
-        room.getLogements().addAll(logements);
-
-        // Mettre à jour la relation inverse pour chaque logement
-        for (Logement logement : logements) {
-            logement.setRoom(room);
-        	
-        }*/
-        // Mettre à jour les logements (relation unidirectionnelle depuis Logement uniquement)
-        for (Logement logement : logements) {
-            logement.setRoom(room);
-            logementRepository.save(logement);
-        }
-
-
-        /*// Supprimer les anciennes images
-        if (room.getImages() != null) {
-            room.getImages().clear();
-        }
-
-        // Ajouter les nouvelles images
-        if (images != null) {
-            // Supprimer proprement les anciennes images
-            List<Image> existingImages = room.getImages();
-            if (existingImages != null) {
-                existingImages.clear(); // ça déclenche orphanRemoval
-            }
-
-            for (MultipartFile file : images) {
-                String imageUrl = fileStorageService.saveImage(file);
-                Image newImage = new Image();
-                newImage.setImageURL(imageUrl);
-                newImage.setRoom(room);
-                room.getImages().add(newImage); // ne pas remplacer la liste, juste ajouter
-            }
-        }*/
-        // 🔥 SUPPRIMER les anciennes images associées à cette chambre
-        //imageRepository.deleteByRoom(room);
-        /*if (room.getImages() != null) {
-            room.getImages().clear(); // supprime les anciennes images
-        }*/
+     
 
         // 📸 Ajouter les nouvelles images
         if (images != null && !images.isEmpty()) {
@@ -233,11 +254,11 @@ public class RoomServiceImpl implements RoomService {
                 newImage.setImageURL(imageUrl);
                 newImage.setRoom(room);
                 imageRepository.save(newImage);
-                //room.getImages().add(newImage);
+                
             }
         }
         return roomRepository.save(room);
-    }
+    }*/
     @Override
     public List<Room> getAllRooms() {
         return roomRepository.findAll();

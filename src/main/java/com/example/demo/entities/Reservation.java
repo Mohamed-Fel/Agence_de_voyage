@@ -39,7 +39,7 @@ public class Reservation {
 	 private String firstName;
 	 private String lastName;
 
-	 private int nbJours;
+	 private int nbNuitees;
 	 private int nbAdultes;
 	 private int nbEnfants;
 
@@ -61,10 +61,9 @@ public class Reservation {
 	 @JsonManagedReference
 	 private List<Room> rooms;
 
-
 	 @OneToOne(cascade = CascadeType.ALL)
 	 @JoinColumn(name = "paiement_id", referencedColumnName = "id")
 	 @JsonManagedReference 
 	 private Paiement paiement;
-
+	 
 }

@@ -46,12 +46,7 @@ public class Room {
     private double prixAdulte;
     private double prixEnfant;
     private int ageMinimal;
-    /*@JsonIgnore
-    @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
-    private List<Logement> logements;*/
-    /*@JsonIgnore
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images;*/
+  
     
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -61,9 +56,6 @@ public class Room {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
     
-    /*@OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "room_id") // la FK sera dans la table "image"
-    private List<Image> images = new ArrayList<>();*/
     
     @JsonBackReference
     @ManyToOne

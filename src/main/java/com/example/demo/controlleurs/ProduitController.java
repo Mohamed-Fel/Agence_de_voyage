@@ -1,11 +1,13 @@
 package com.example.demo.controlleurs;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -168,6 +170,25 @@ public class ProduitController {
         response.put("produits", produits);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/getProduitsDisponiblesParCategorieEtDates")
+    public ResponseEntity<?> getProduitsDisponiblesParCategorieEtDates(
+    	    @RequestParam String nomCategorie,
+    	    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+    	    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut
+    	) {
+    	    List<Produit> produitsDisponibles = produitService.getProduitsDisponiblesParCategorieEtDates(nomCategorie, checkIn, checkOut);
+
+    	    if (produitsDisponibles.isEmpty()) {
+    	        Map<String, Object> response = new HashMap<>();
+    	        response.put("message", "❌ Aucun produit disponible dans cette catégorie et période.");
+    	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    	    }
+
+    	    Map<String, Object> response = new HashMap<>();
+    	    response.put("message", "✅ Produits disponibles trouvés.");
+    	    response.put("produits", produitsDisponibles);
+    	    return ResponseEntity.ok(response);
+    	}
     @GetMapping("/all")
     public ResponseEntity<Map<String, Object>> getAllProduits() {
         Map<String, Object> response = new HashMap<>();

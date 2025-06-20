@@ -1,5 +1,6 @@
 package com.example.demo.servicesImpl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -188,6 +189,23 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public List<Produit> getProduitsByCategorieName(String nomCategorie) {
         return produitRepository.findByCategorieName(nomCategorie);
+    }
+    @Override
+    public List<Produit> getProduitsDisponiblesParCategorieEtDates(String nomCategorie, LocalDate checkIn, LocalDate checkOut) {
+        List<Produit> produits = produitRepository.findByCategorieName(nomCategorie);
+        List<Produit> disponibles = new ArrayList<>();
+
+        for (Produit p : produits) {
+            Contrat contrat = p.getContrat();
+            if (contrat != null &&
+                (contrat.getStartDate().isBefore(checkIn) || contrat.getStartDate().isEqual(checkIn)) &&
+                (contrat.getEndDate().isAfter(checkOut) || contrat.getEndDate().isEqual(checkOut))
+            ) {
+                disponibles.add(p);
+            }
+        }
+
+        return disponibles;
     }
     @Override
     public void deleteProduit(Long id) {
