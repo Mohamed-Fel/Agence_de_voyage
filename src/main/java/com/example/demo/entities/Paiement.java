@@ -31,7 +31,7 @@ public class Paiement {
 
     private String paiementStatus; // ex: SUCCESS, FAILED, PENDING
 
-    private String paymentMethod;  // ex: Carte bancaire, Flouci, Paypal
+    private String paymentType;  // ex: Carte bancaire, Flouci, Paypal
 
     private double montantPaye;
     

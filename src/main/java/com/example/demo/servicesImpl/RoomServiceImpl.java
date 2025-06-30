@@ -1,10 +1,12 @@
 package com.example.demo.servicesImpl;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import com.example.demo.entities.Room;
 import com.example.demo.repositories.ImageRepository;
 import com.example.demo.repositories.LogementRepository;
 import com.example.demo.repositories.ProduitRepository;
+import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.RoomRepository;
 import com.example.demo.services.FileStorageService;
 import com.example.demo.services.RoomService;
@@ -26,6 +29,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Autowired
     private RoomRepository roomRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     @Autowired
     private LogementRepository logementRepository;
@@ -131,6 +136,19 @@ public class RoomServiceImpl implements RoomService {
         
 
         roomRepository.deleteById(roomId);
+    }
+    @Override
+    public List<Room> getAvailableRooms(Long produitId, LocalDateTime checkIn, LocalDateTime checkOut) {
+        // Toutes les chambres de ce produit
+        List<Room> allRooms = roomRepository.findByProduit_Id(produitId);
+
+        // Chambres déjà réservées dans cette période
+        List<Room> reservedRooms = reservationRepository.findReservedRoomsBetween(checkIn, checkOut);
+
+        // Filtrer les chambres disponibles
+        return allRooms.stream()
+                .filter(room -> !reservedRooms.contains(room))
+                .collect(Collectors.toList());
     }
     @Override
     public Room updateRoom(

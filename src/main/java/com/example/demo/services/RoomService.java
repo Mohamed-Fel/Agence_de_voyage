@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +13,7 @@ public interface RoomService {
 	Room saveRoomWithoutLogements(Room room, Long produitId, List<MultipartFile> imageFiles) throws Exception;
 	Room getRoomById(Long id);
 	List<Room> getRoomsByProduitId(Long produitId);
+    List<Room> getAvailableRooms(Long produitId, LocalDateTime checkIn, LocalDateTime checkOut);
 	void deleteRoom(Long roomId);
 	List<Room> getAllRooms();
 	Room updateRoom(

@@ -29,6 +29,7 @@ public class CreateReservationRequest {
     
     private LocalDateTime dateDeReservation;
     private List<Long> roomIds;
+    private int montantapayer;
 
     // 📌 Paiement
     private String methodePaiement; // "EN_LIGNE" ou "A_L_AGENCE"

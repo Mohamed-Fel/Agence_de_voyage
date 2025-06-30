@@ -1,5 +1,6 @@
 package com.example.demo.controlleurs;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ import com.example.demo.entities.Localisation;
 import com.example.demo.entities.Logement;
 import com.example.demo.entities.Room;
 import com.example.demo.repositories.LogementRepository;
+import com.example.demo.repositories.RoomRepository;
 import com.example.demo.services.RoomService;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -35,6 +38,9 @@ public class RoomController {
     private RoomService roomService;
 	@Autowired
 	private LogementRepository logementRepository;
+	@Autowired
+	private RoomRepository roomRepository;
+	
 
     /*@PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<?> addRoom(
@@ -105,6 +111,13 @@ public class RoomController {
 	        @RequestParam("images") List<MultipartFile> imageFiles      // Liste des fichiers images uploadés
 	) {
 	    try {
+	        // ✅ Vérifier l'unicité du nom de la chambre
+	        Optional<Room> existingRoom = roomRepository.findByName(name);
+	        if (existingRoom.isPresent()) {
+	            return ResponseEntity.badRequest().body(
+	                Map.of("error", "❌ Une chambre avec ce nom existe déjà.")
+	            );
+	        }
 	        // Création d'une instance Room et assignation des valeurs reçues
 	        Room room = new Room();
 	        room.setName(name);
@@ -254,6 +267,36 @@ public class RoomController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     Map.of("error", "❌ Erreur interne : " + e.getMessage())
+            );
+        }
+    }
+    @GetMapping("/available-rooms")
+    public ResponseEntity<?> getAvailableRooms(
+        @RequestParam Long produitId,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut) {
+
+        try {
+            if (checkIn.isAfter(checkOut)) {
+                return ResponseEntity.badRequest().body(
+                    Map.of("error", "❌ La date de check-in doit être avant la date de check-out.")
+                );
+            }
+
+            List<Room> availableRooms = roomService.getAvailableRooms(produitId, checkIn, checkOut);
+
+            if (availableRooms.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("message", "❌ Aucune chambre disponible pour cette période.")
+                );
+            }
+
+            return ResponseEntity.ok(
+                Map.of("message", "✅ Chambres disponibles trouvées", "rooms", availableRooms)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                Map.of("error", "❌ Erreur interne : " + e.getMessage())
             );
         }
     }

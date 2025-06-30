@@ -4,10 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.demo.enums.MethodePaiement;
+import com.example.demo.enums.ReservationStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,6 +42,10 @@ public class Reservation {
 	 private String phone;
 	 private String firstName;
 	 private String lastName;
+	 private int age;
+	 private String ville;
+	 private String informationsSupplementaires;
+
 
 	 private int nbNuitees;
 	 private int nbAdultes;
@@ -47,10 +55,12 @@ public class Reservation {
 
 	 private LocalDateTime checkIn;
 	 private LocalDateTime checkOut;
-
-	 private String status; // ex: PENDING, CONFIRMED, CANCELLED
+	 @Enumerated(EnumType.STRING)
+	 private ReservationStatus status; // ex: PENDING, CONFIRMED, CANCELLED
 
 	 private LocalDateTime dateDeReservation;
+	 @Enumerated(EnumType.STRING)
+	 private MethodePaiement methodePaiement; // "EN_LIGNE" ou "A_L_AGENCE"
 	 
 	 @ManyToMany
 	 @JoinTable(
