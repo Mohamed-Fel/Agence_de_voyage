@@ -57,6 +57,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setDateDeReservation(request.getDateDeReservation()); // ou request.getDateDeReservation()
         reservation.setTotalPrixReservation(request.getMontantapayer());
         reservation.setStatus(determineReservationStatus(request.getCheckIn(), request.getCheckOut()));
+        reservation.setMethodePaiement(request.getMethodePaiement());
         reservation.setRooms(rooms);
 
         // 💾 Sauvegarder la réservation ET retourner l'entité sauvegardée

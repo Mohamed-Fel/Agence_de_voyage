@@ -66,6 +66,7 @@ public class ReservationController {
 	        reservationMap.put("totalPrixReservation", reservation.getTotalPrixReservation());
 	        reservationMap.put("status", reservation.getStatus());
 	        reservationMap.put("roomIds", reservation.getRooms().stream().map(Room::getId).toList());
+	        reservationMap.put("methodePaiement", reservation.getMethodePaiement());
 	        reservationMap.put("hotelName", hotelName);
 	        Map<String, Object> response = new HashMap<>();
 	        response.put("message", "✅ Réservation créée avec succès.");

@@ -3,6 +3,10 @@ package com.example.demo.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.demo.enums.MethodePaiement;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +36,7 @@ public class CreateReservationRequest {
     private int montantapayer;
 
     // 📌 Paiement
-    private String methodePaiement; // "EN_LIGNE" ou "A_L_AGENCE"
+    @Enumerated(EnumType.STRING)
+    private MethodePaiement methodePaiement; // "EN_LIGNE" ou "A_L_AGENCE"
 
 }
