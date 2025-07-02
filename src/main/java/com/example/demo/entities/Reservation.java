@@ -73,7 +73,7 @@ public class Reservation {
 
 	 @OneToOne(cascade = CascadeType.ALL)
 	 @JoinColumn(name = "paiement_id", referencedColumnName = "id")
-	 @JsonManagedReference 
+	 @JsonManagedReference
 	 private Paiement paiement;
 	 
 }
