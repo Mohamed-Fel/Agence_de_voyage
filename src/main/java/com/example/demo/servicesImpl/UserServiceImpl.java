@@ -1,11 +1,18 @@
 package com.example.demo.servicesImpl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Agent;
@@ -17,6 +24,7 @@ import com.example.demo.repositories.AgentRepository;
 import com.example.demo.repositories.ImageRepository;
 import com.example.demo.repositories.RoleRepository;
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.security.JwtService;
 import com.example.demo.services.FileStorageService;
 import com.example.demo.services.UserService;
 
@@ -33,6 +41,8 @@ public class UserServiceImpl implements UserService {
     AgentRepository agentRepository;
     @Autowired
     private FileStorageService fileStorageService;
+    @Autowired
+    private JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository,RoleRepository roleRepository,ImageRepository imageRepository, BCryptPasswordEncoder passwordEncoder ,AdminRepository adminRepository) {
@@ -165,7 +175,7 @@ public class UserServiceImpl implements UserService {
 
         return agentRepository.save(agent);
     }
-    @Override
+    /*@Override
     public User editUserProfile(Long userId, String userName, String firstName, String lastName, String email, String password, MultipartFile imageFile) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new Exception("Utilisateur non trouvé avec l'ID : " + userId));
@@ -184,6 +194,44 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.save(user);
+    }*/
+    
+    @Override
+    public Map<String, Object> editUserProfile(Long userId, String userName, String firstName, String lastName, String email, String password, MultipartFile imageFile) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("Utilisateur non trouvé avec l'ID : " + userId));
+
+        boolean emailChanged = (email != null && !email.equals(user.getEmail()));
+        boolean passwordChanged = (password != null && !password.isBlank());
+
+        if (userName != null) user.setUserName(userName);
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
+        if (emailChanged) user.setEmail(email);
+        if (passwordChanged) user.setPassword(passwordEncoder.encode(password));
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.saveImage(imageFile);
+            updateUserImage(user, imageUrl);
+        }
+
+        user = userRepository.save(user);
+
+        // ✅ Générer un nouveau token si email ou password ont changé
+        String newToken = null;
+        if (emailChanged || passwordChanged) {
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().getName()));
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user.getEmail(), null, authorities
+            );
+            newToken = jwtService.generateToken(authentication);
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("updatedUser", user);
+        result.put("newToken", newToken);
+
+        return result;
     }
     public void updateUserImage(User user, String imageUrl) {
         Image existingImage = user.getImage();

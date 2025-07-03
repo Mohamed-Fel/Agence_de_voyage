@@ -181,12 +181,23 @@ public class UserController {
             @RequestParam(required = false) MultipartFile image
     ) {
         try {
-            User updatedUser = userService.editUserProfile(id, userName, firstName, lastName, email, password, image);
+        	Map<String, Object> result = userService.editUserProfile(id, userName, firstName, lastName, email, password, image);
+            User updatedUser = (User) result.get("updatedUser");
+            String newToken = (String) result.get("newToken");
+            updatedUser.setPassword(null); 
+            
+            /*User updatedUser = userService.editUserProfile(id, userName, firstName, lastName, email, password, image);
             updatedUser.setPassword(null); // ne pas exposer le mot de passe
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "✅ Profil mis à jour avec succès.");
+            response.put("updatedUser", updatedUser);*/
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "✅ Profil mis à jour avec succès.");
             response.put("updatedUser", updatedUser);
+            if (newToken != null) {
+                response.put("newToken", newToken);
+            }
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
