@@ -11,6 +11,7 @@ import com.example.demo.entities.Admin;
 import com.example.demo.entities.Agent;
 import com.example.demo.entities.Image;
 import com.example.demo.entities.Role;
+import com.example.demo.entities.User;
 import com.example.demo.repositories.AdminRepository;
 import com.example.demo.repositories.AgentRepository;
 import com.example.demo.repositories.ImageRepository;
@@ -163,6 +164,37 @@ public class UserServiceImpl implements UserService {
         }
 
         return agentRepository.save(agent);
+    }
+    @Override
+    public User editUserProfile(Long userId, String userName, String firstName, String lastName, String email, String password, MultipartFile imageFile) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("Utilisateur non trouvé avec l'ID : " + userId));
+
+        if (userName != null) user.setUserName(userName);
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
+        if (email != null) user.setEmail(email);
+        if (password != null && !password.isBlank()) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = fileStorageService.saveImage(imageFile);
+            updateUserImage(user, imageUrl);
+        }
+
+        return userRepository.save(user);
+    }
+    public void updateUserImage(User user, String imageUrl) {
+        Image existingImage = user.getImage();
+
+        if (existingImage != null) {
+            existingImage.setImageURL(imageUrl);
+        } else {
+            Image newImage = new Image();
+            newImage.setImageURL(imageUrl);
+            user.setImage(newImage);
+        }
     }
 
     /*@Override

@@ -52,10 +52,10 @@ public class AgenceDeVoyageApplication {
 	                .orElseGet(() -> roleRepository.save(new Role("AGENT")));
 
 	        // ✅ Créer un admin par défaut s'il n'existe pas
-	        String adminEmail = "ahmedahmed@example.com";
-	        if (userRepository.findByEmail(adminEmail).isEmpty()) {
-	            System.out.println("🛠️ Aucun admin trouvé, création de l'admin par défaut...");
-
+	        String adminEmail = "felfelmohamed12@gmail.com";
+	        boolean adminExists = userRepository.existsByRole(adminRole);
+	        if (!adminExists) {
+	            System.out.println("🛠️ Aucun utilisateur avec le rôle ADMIN, création d’un admin par défaut...");
 	            // 🔗 Chemin de l’image uploads/1f93d292-c538-4bbe-867b-939e928b4c15_PHOTO.jpg
 	            String sourceImagePath = "uploads/96cedda3-d254-4bfd-abbe-469972dbddf9_PHOTO.jpg";
 
@@ -82,7 +82,7 @@ public class AgenceDeVoyageApplication {
 
 	            System.out.println("✅ Admin par défaut créé !");
 	        } else {
-	            System.out.println("ℹ️ Admin déjà existant.");
+	            System.out.println("ℹ️ Un utilisateur avec le rôle ADMIN existe déjà.");
 	        }
 	     // ✅ Ajouter deux catégories par défaut si elles n'existent pas
 	        if (categorieRepository.findAll().isEmpty()) {
