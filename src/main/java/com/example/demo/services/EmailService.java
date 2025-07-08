@@ -10,5 +10,6 @@ import jakarta.mail.MessagingException;
 
 public interface EmailService {
 	void sendReservationWithPdf(String toEmail, MultipartFile pdfFile) throws MessagingException, IOException;
+	void sendResetCodeEmail(String to, String code);
 
 }

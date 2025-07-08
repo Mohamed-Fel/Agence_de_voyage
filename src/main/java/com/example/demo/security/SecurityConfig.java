@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/email/**").permitAll()
                 .requestMatchers("/Prix/**").permitAll()
                 .requestMatchers("/Reservations/**").permitAll()
+                .requestMatchers("/reset/**").permitAll()
                 
                 .requestMatchers("/manage/**").hasRole("ADMIN")
                 

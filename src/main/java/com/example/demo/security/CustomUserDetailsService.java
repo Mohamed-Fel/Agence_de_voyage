@@ -21,32 +21,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
- /*   @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-        // Transforme le rôle en ROLE_XXX pour Spring Security
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().toUpperCase());
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                List.of(authority)
-        );
-    }*/
-    /*@Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        System.out.println("User password from DB: " + user.getPassword());
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().toUpperCase());
-        return new org.springframework.security.core.userdetails.User(
-            user.getEmail(),
-            user.getPassword(),
-            List.of(authority)
-        );
-    }*/
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // On récupère directement l'objet User (qui implémente UserDetails)

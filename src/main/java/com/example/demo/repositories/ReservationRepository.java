@@ -29,19 +29,19 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>{
 	@Query("SELECT r.methodePaiement, COUNT(r) FROM Reservation r GROUP BY r.methodePaiement")
 	List<Object[]> countReservationsByPaymentMethod();
 	
-    @Query("""
-            select p.name, count(r.id)
-            from Reservation r
-            join r.rooms room
-            join room.produit p
-            where r.dateDeReservation >= :startDate
-              and r.dateDeReservation < :endDate
-            group by p.name
-            order by count(r.id) desc
-            """)
-        List<Object[]> findTop3ProduitsReservedInPeriod(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+	@Query("""
+		    select p, count(distinct r.id)
+		    from Reservation r
+		    join r.rooms room
+		    join room.produit p
+		    where r.dateDeReservation >= :startDate
+		      and r.dateDeReservation < :endDate
+		    group by p.name
+		    order by count(distinct r.id) desc
+		    """)
+		List<Object[]> findTop3ProduitsReservedInPeriod(
+		    @Param("startDate") LocalDateTime startDate,
+		    @Param("endDate") LocalDateTime endDate);
 
         @Query("""
             select count(r.id) > 0
@@ -62,5 +62,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>{
         	    ORDER BY COUNT(r.id) DESC
         	""")
         	List<Object[]> findTop3Destinations();
-
+        	
 }
