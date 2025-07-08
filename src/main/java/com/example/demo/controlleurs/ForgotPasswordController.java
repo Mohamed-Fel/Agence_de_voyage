@@ -17,7 +17,6 @@ import com.example.demo.services.EmailService;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 import com.example.demo.entities.PasswordResetCode;
 import com.example.demo.entities.User;

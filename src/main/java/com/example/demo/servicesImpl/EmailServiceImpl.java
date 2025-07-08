@@ -46,12 +46,39 @@ public class EmailServiceImpl implements EmailService {
 	    }*/
 	    @Override
 	    public void sendResetCodeEmail(String to, String code) {
-	        SimpleMailMessage message = new SimpleMailMessage();
-	        message.setTo(to);
-	        message.setSubject("🔐 Code de réinitialisation de mot de passe");
-	        message.setText("Bonjour,\n\nVoici votre code de réinitialisation : " + code + 
-	                        "\n\nCe code est valable pendant 1 heure.\n\nL'équipe support.");
-	        mailSender.send(message);
+	        MimeMessage message = mailSender.createMimeMessage();
+
+	        try {
+	            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+	            helper.setTo(to);
+	            helper.setSubject("🔐 Code de réinitialisation de mot de passe");
+
+	            String htmlContent = """
+	                <html>
+	                <body style="font-family: Arial, sans-serif; color: #333;">
+	                    <h2>Réinitialisation de mot de passe</h2>
+	                    <p>Bonjour,</p>
+	                    <p>Voici votre code de réinitialisation :</p>
+	                    
+	                    <div style="padding: 15px; border: 2px dashed #007bff; background-color: #f0f8ff; 
+	                                font-size: 24px; font-weight: bold; text-align: center; width: fit-content;">
+	                        %s
+	                    </div>
+
+	                    <p style="margin-top: 20px;">⏳ Ce code est valable pendant <strong>3 minutes</strong>.</p>
+	                    <p>Si vous n'avez pas demandé de réinitialisation, ignorez ce message.</p>
+
+	                    <p style="margin-top: 30px;">Cordialement,<br>L’équipe support</p>
+	                </body>
+	                </html>
+	                """.formatted(code);
+
+	            helper.setText(htmlContent, true); // true = HTML content
+	            mailSender.send(message);
+
+	        } catch (MessagingException e) {
+	            throw new RuntimeException("Erreur lors de l'envoi de l'e-mail HTML", e);
+	        }
 	    }
 
 }
