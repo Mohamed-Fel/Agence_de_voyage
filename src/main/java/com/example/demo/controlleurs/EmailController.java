@@ -31,5 +31,4 @@ public class EmailController {
 	                    .body("❌ Erreur lors de l'envoi de l'email : " + e.getMessage());
 	        }
 	    }
-
 }

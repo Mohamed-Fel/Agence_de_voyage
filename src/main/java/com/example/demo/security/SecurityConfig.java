@@ -45,7 +45,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                 .requestMatchers("/api/email/**").permitAll()
                 .requestMatchers("/Prix/**").permitAll()
-                .requestMatchers("/Reservations/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/Reservations/all").authenticated() // 🔐 nécessite un token
+                .requestMatchers("/Reservations/**").permitAll() // 🌐 les autres sont publics
                 .requestMatchers("/reset/**").permitAll()
                 
                 .requestMatchers("/manage/**").hasRole("ADMIN")

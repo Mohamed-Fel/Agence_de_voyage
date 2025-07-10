@@ -15,6 +15,7 @@ import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.EmailService;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -37,10 +38,10 @@ public class ForgotPasswordController {
     public ResponseEntity<?> forgotPassword(@RequestParam String email, HttpServletRequest request) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aucun utilisateur avec cet email.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Aucun utilisateur avec cet email."));
         }
 
-        // Supprimer anciens tokens
+        // Supprimer anciens code
         codeRepository.deleteByEmail(email);
 
      // Générer un code OTP à 6 chiffres
@@ -51,7 +52,7 @@ public class ForgotPasswordController {
         codeRepository.save(resetCode);
 
         emailService.sendResetCodeEmail(email, code);
-        return ResponseEntity.ok("✅ Code envoyé par email");
+        return ResponseEntity.ok(Map.of("success", true, "message", "✅ Code envoyé par email"));
     }
     // Étape 2 : Vérifier le code
     @PostMapping("/verify-code")
@@ -59,14 +60,14 @@ public class ForgotPasswordController {
         Optional<PasswordResetCode> optionalCode = codeRepository.findByEmailAndCode(email, code);
 
         if (optionalCode.isEmpty()) {
-            return ResponseEntity.badRequest().body("❌ Code incorrect");
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "❌ Code incorrect"));
         }
 
         if (optionalCode.get().isExpired()) {
-            return ResponseEntity.badRequest().body("⏰ Code invalide");
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "⏰ Code invalide"));
         }
 
-        return ResponseEntity.ok("✅ Code valide");
+        return ResponseEntity.ok(Map.of("success", true, "message", "✅ Code valide"));
     }
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email,
@@ -75,7 +76,7 @@ public class ForgotPasswordController {
         Optional<PasswordResetCode> optionalCode = codeRepository.findByEmailAndCode(email, code);
 
         if (optionalCode.isEmpty() || optionalCode.get().isExpired()) {
-            return ResponseEntity.badRequest().body("❌ Code invalide ou expiré");
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "❌ Code invalide ou expiré"));
         }
 
         User user = userRepository.findByEmail(email).get();
@@ -84,6 +85,6 @@ public class ForgotPasswordController {
 
         codeRepository.deleteByEmail(email);
 
-        return ResponseEntity.ok("🔒 Mot de passe réinitialisé avec succès");
+        return ResponseEntity.ok(Map.of("success", true, "message", "🔒 Mot de passe réinitialisé avec succès"));
     }
 }
