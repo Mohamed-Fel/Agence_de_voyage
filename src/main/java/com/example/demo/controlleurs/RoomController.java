@@ -112,12 +112,12 @@ public class RoomController {
 	) {
 	    try {
 	        // ✅ Vérifier l'unicité du nom de la chambre
-	        Optional<Room> existingRoom = roomRepository.findByName(name);
+	        /*Optional<Room> existingRoom = roomRepository.findByName(name);
 	        if (existingRoom.isPresent()) {
 	            return ResponseEntity.badRequest().body(
 	                Map.of("error", "❌ Une chambre avec ce nom existe déjà.")
 	            );
-	        }
+	        }*/
 	        // Création d'une instance Room et assignation des valeurs reçues
 	        Room room = new Room();
 	        room.setName(name);
