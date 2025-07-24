@@ -54,5 +54,9 @@ public class DashbordController {
     public List<Map<String, Object>> getTop3Destinations() {
         return dashbordService.getTop3Destinations();
     }
+    @GetMapping("/categorie")
+    public Map<String, Object> getNombreProduitsParCategorie(@RequestParam String name) {
+        return dashbordService.countProduitsByCategorieName(name);
+    }
 
 }

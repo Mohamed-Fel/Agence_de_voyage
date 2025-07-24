@@ -83,4 +83,33 @@ public class ReservationServiceImpl implements ReservationService {
     public List<Reservation> getReservationsByNomHotel(String nomHotel) {
         return reservationRepository.findByNomHotel(nomHotel);
     }
+    @Override
+    public Reservation acceptReservation(Long reservationId) {
+        Reservation r = getReservationById(reservationId);  // lance IllegalArgumentException si non trouvé
+
+        // 1) Vérifier les conflits de dates pour les mêmes chambres
+        List<Long> roomIds = r.getRooms().stream().map(Room::getId).toList();
+        List<Reservation> conflicts = reservationRepository.findConflictingReservations(
+            roomIds, r.getCheckIn(), r.getCheckOut()
+        );
+        // Retirer la réservation courante de la liste, si présente
+        conflicts.removeIf(existing -> existing.getId().equals(reservationId));
+        if (!conflicts.isEmpty()) {
+            throw new IllegalStateException("❌ Conflit de réservation sur la même chambre et période.");
+        }
+
+        // 2) Mettre à jour le statut selon la date courante
+        ReservationStatus nouveauStatut = determineReservationStatus(r.getCheckIn(), r.getCheckOut());
+        r.setStatus(nouveauStatut);
+
+        // 3) Sauvegarder et retourner
+        return reservationRepository.save(r);
+    }
+
+    @Override
+    public Reservation rejectReservation(Long reservationId) {
+        Reservation r = getReservationById(reservationId);
+        r.setStatus(ReservationStatus.ANNULEE);
+        return reservationRepository.save(r);
+    }
 }

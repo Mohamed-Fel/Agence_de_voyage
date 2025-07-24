@@ -1,8 +1,10 @@
 package com.example.demo.controlleurs;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,14 +14,18 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.entities.CreateReservationRequest;
 import com.example.demo.entities.Reservation;
 import com.example.demo.entities.Room;
+import com.example.demo.repositories.ReservationRepository;
+import com.example.demo.services.FileStorageService;
 import com.example.demo.services.ReservationService;
 
 @RestController
@@ -28,6 +34,10 @@ import com.example.demo.services.ReservationService;
 public class ReservationController {
     @Autowired
     private ReservationService reservationService;
+    @Autowired
+    private ReservationRepository reservationRepository;
+    @Autowired
+    private FileStorageService fileStorageService;
     
 	@PostMapping("/createRev")
 	public ResponseEntity<?> createReservation(@RequestBody CreateReservationRequest request) {
@@ -141,6 +151,64 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     Map.of("error", "❌ Erreur lors de la récupération des réservations : " + e.getMessage())
             );
+        }
+    }
+    @PutMapping("/accept/{id}")
+    public ResponseEntity<?> acceptReservation(@PathVariable Long id) {
+        try {
+            Reservation updated = reservationService.acceptReservation(id);
+            return ResponseEntity.ok(Map.of(
+                "message", "✅ Réservation acceptée avec succès.",
+                "reservation", updated
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest()
+                                 .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "❌ Erreur interne : " + e.getMessage()));
+        }
+    }
+
+    @PutMapping("/reject/{id}")
+    public ResponseEntity<?> rejectReservation(@PathVariable Long id) {
+        try {
+            Reservation updated = reservationService.rejectReservation(id);
+            return ResponseEntity.ok(Map.of(
+                "message", "✅ Réservation refusée (annulée) avec succès.",
+                "reservation", updated
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "❌ Erreur interne : " + e.getMessage()));
+        }
+    }
+    @PutMapping("/fiche-pdf/{id}")
+    public ResponseEntity<?> ajouterFichePdf(
+            @PathVariable Long id,
+            @RequestParam("fichePdf") MultipartFile fichePdf) {
+
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
+
+        try {
+            // Utilisation du FileStorageService
+            String url = fileStorageService.saveImage(fichePdf);
+
+            // Enregistrement de l'URL dans la réservation
+            reservation.setFicheReservationUrl(url);
+            reservationRepository.save(reservation);
+
+            return ResponseEntity.ok("✅ Fiche PDF enregistrée à l'URL : " + url);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("❌ Erreur lors de l'enregistrement du fichier.");
         }
     }
 

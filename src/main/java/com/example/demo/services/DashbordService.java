@@ -10,6 +10,7 @@ public interface DashbordService {
     List<Object[]> getTop3ProduitsReservedInMonth(int year, int month);
     boolean checkIfReservationsExistInMonth(int year, int month);
     List<Map<String, Object>> getTop3Destinations();
+    Map<String, Object> countProduitsByCategorieName(String name);
 	
 
 

@@ -62,5 +62,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>{
         	    ORDER BY COUNT(r.id) DESC
         	""")
         	List<Object[]> findTop3Destinations();
-        	
+            @Query("""
+            	      select r from Reservation r
+            	      join r.rooms room
+            	      where room.id in :roomIds
+            	        and r.status <> 'ANNULEE'
+            	        and r.checkIn < :checkOut
+            	        and r.checkOut > :checkIn
+            	    """)
+            	    List<Reservation> findConflictingReservations(
+            	        @Param("roomIds") List<Long> roomIds,
+            	        @Param("checkIn") LocalDateTime checkIn,
+            	        @Param("checkOut") LocalDateTime checkOut
+            	    );   	
 }

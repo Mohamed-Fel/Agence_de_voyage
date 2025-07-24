@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ public interface ProduitService {
 	List<Produit> getProduitsDisponiblesParCategorieEtDates(String nomCategorie, LocalDate checkIn, LocalDate checkOut);
 	void deleteProduit(Long id);
 	List<Produit> getAllProduits();
+	
 }
 
 

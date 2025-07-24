@@ -2,6 +2,7 @@ package com.example.demo.servicesImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +13,15 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.enums.MethodePaiement;
 import com.example.demo.enums.ReservationStatus;
+import com.example.demo.repositories.ProduitRepository;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.services.DashbordService;
 @Service
 public class DashbordServiceImpl implements DashbordService {
 	@Autowired
     private ReservationRepository reservationRepository;
+	@Autowired
+	private ProduitRepository produitRepository;
 
     @Override
     public Long getTotalBookingsToday() {
@@ -81,6 +85,14 @@ public class DashbordServiceImpl implements DashbordService {
                         "nombreReservations", row[1]
                 ))
                 .collect(Collectors.toList());
+    }
+    @Override
+    public Map<String, Object> countProduitsByCategorieName(String name) {
+        Long total = produitRepository.countByCategorieName(name);
+        Map<String, Object> result = new HashMap<>();
+        result.put("categorie", name);
+        result.put("total", total);
+        return result;
     }
 
 }

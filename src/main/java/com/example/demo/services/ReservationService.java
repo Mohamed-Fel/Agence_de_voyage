@@ -11,4 +11,6 @@ public interface ReservationService {
 	Reservation getReservationById(Long id);
 	void deleteReservation(Long id);
 	List<Reservation> getReservationsByNomHotel(String nomHotel);
+    Reservation acceptReservation(Long reservationId);
+    Reservation rejectReservation(Long reservationId);
 }
