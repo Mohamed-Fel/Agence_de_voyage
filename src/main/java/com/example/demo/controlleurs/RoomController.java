@@ -286,7 +286,7 @@ public class RoomController {
             List<Room> availableRooms = roomService.getAvailableRooms(produitId, checkIn, checkOut);
 
             if (availableRooms.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                return ResponseEntity.ok(
                     Map.of("message", "❌ Aucune chambre disponible pour cette période.")
                 );
             }

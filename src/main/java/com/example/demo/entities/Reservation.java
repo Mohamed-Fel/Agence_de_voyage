@@ -9,6 +9,7 @@ import com.example.demo.enums.ReservationStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -57,6 +58,7 @@ public class Reservation {
 	 private LocalDateTime checkIn;
 	 private LocalDateTime checkOut;
 	 @Enumerated(EnumType.STRING)
+	 @Column(length = 20)
 	 private ReservationStatus status; // ex: PENDING, CONFIRMED, CANCELLED
 
 	 private LocalDateTime dateDeReservation;

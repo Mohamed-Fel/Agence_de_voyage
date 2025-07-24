@@ -13,10 +13,23 @@ import com.example.demo.entities.Room;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long>{
-	@Query("SELECT r.rooms FROM Reservation r WHERE " +
+	/*@Query("SELECT r.rooms FROM Reservation r WHERE " +
 		       "(r.checkIn < :checkOut AND r.checkOut > :checkIn)")
 		List<Room> findReservedRoomsBetween(@Param("checkIn") LocalDateTime checkIn,
-		                                     @Param("checkOut") LocalDateTime checkOut);
+		                                     @Param("checkOut") LocalDateTime checkOut);*/
+	@Query("""
+		    SELECT room FROM Reservation r
+		    JOIN r.rooms room
+		    WHERE r.checkIn < :checkOut
+		      AND r.checkOut > :checkIn
+		      AND (r.status = 'A_VENIR' OR r.status = 'EN_COURS')
+		      AND room.produit.id = :produitId
+		""")
+		List<Room> findReservedRoomsBetween(
+		    @Param("produitId") Long produitId,
+		    @Param("checkIn") LocalDateTime checkIn,
+		    @Param("checkOut") LocalDateTime checkOut
+		);
 	@Query("SELECT r FROM Reservation r JOIN r.rooms room WHERE room.produit.name = :nomHotel")
 	List<Reservation> findByNomHotel(@Param("nomHotel") String nomHotel);
 	

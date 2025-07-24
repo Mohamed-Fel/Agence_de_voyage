@@ -137,7 +137,7 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.deleteById(roomId);
     }
-    @Override
+    /*@Override
     public List<Room> getAvailableRooms(Long produitId, LocalDateTime checkIn, LocalDateTime checkOut) {
         // Toutes les chambres de ce produit
         List<Room> allRooms = roomRepository.findByProduit_Id(produitId);
@@ -146,6 +146,16 @@ public class RoomServiceImpl implements RoomService {
         List<Room> reservedRooms = reservationRepository.findReservedRoomsBetween(checkIn, checkOut);
 
         // Filtrer les chambres disponibles
+        return allRooms.stream()
+                .filter(room -> !reservedRooms.contains(room))
+                .collect(Collectors.toList());
+    }*/
+    @Override
+    public List<Room> getAvailableRooms(Long produitId, LocalDateTime checkIn, LocalDateTime checkOut) {
+        List<Room> allRooms = roomRepository.findByProduit_Id(produitId);
+
+        List<Room> reservedRooms = reservationRepository.findReservedRoomsBetween(produitId, checkIn, checkOut);
+
         return allRooms.stream()
                 .filter(room -> !reservedRooms.contains(room))
                 .collect(Collectors.toList());
