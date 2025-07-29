@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/Reservations/all").authenticated() // 🔐 nécessite un token
                 .requestMatchers("/Reservations/**").permitAll() // 🌐 les autres sont publics
                 .requestMatchers("/reset/**").permitAll()
+                .requestMatchers("/stripe/**").permitAll()
                 
                 .requestMatchers("/manage/**").hasRole("ADMIN")
                 

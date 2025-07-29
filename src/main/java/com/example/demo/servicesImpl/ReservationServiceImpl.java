@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entities.CreateReservationRequest;
+import com.example.demo.entities.Paiement;
 import com.example.demo.entities.Reservation;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.repositories.RoomRepository;
@@ -99,8 +100,17 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         // 2) Mettre à jour le statut selon la date courante
-        ReservationStatus nouveauStatut = determineReservationStatus(r.getCheckIn(), r.getCheckOut());
-        r.setStatus(nouveauStatut);
+        /*ReservationStatus nouveauStatut = determineReservationStatus(r.getCheckIn(), r.getCheckOut());
+        r.setStatus(nouveauStatut);*/
+        Paiement paiement = new Paiement();
+        paiement.setDatePaiement(LocalDateTime.now());
+        paiement.setPaiementStatus("PAID");
+        paiement.setPaymentType("Espèce");
+        paiement.setMontantPaye(r.getTotalPrixReservation());
+        paiement.setReservation(r); // lien inverse
+
+        r.setPaiement(paiement); // lien principal
+        r.setStatus(ReservationStatus.CONFIRMED);
 
         // 3) Sauvegarder et retourner
         return reservationRepository.save(r);

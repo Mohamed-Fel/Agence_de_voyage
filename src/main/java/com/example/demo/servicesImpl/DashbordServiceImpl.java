@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.enums.MethodePaiement;
 import com.example.demo.enums.ReservationStatus;
+import com.example.demo.repositories.PaiementRepository;
 import com.example.demo.repositories.ProduitRepository;
 import com.example.demo.repositories.ReservationRepository;
 import com.example.demo.services.DashbordService;
@@ -22,13 +23,14 @@ public class DashbordServiceImpl implements DashbordService {
     private ReservationRepository reservationRepository;
 	@Autowired
 	private ProduitRepository produitRepository;
-
+	@Autowired
+	private PaiementRepository paiementRepository;
     @Override
     public Long getTotalBookingsToday() {
         return reservationRepository.countTotalReservationsToday();
     }
     
-    @Override
+    /*@Override
     public Map<String, Long> getReservationCountByStatus() {
         List<Object[]> results = reservationRepository.countReservationsByStatus();
         Map<String, Long> stats = new HashMap<>();
@@ -40,12 +42,52 @@ public class DashbordServiceImpl implements DashbordService {
         }
 
         return stats;
-    }
+    }*/
     @Override
+    public Map<String, Long> getReservationCountByStatus() {
+        // Initialiser la map avec tous les statuts à 0
+        Map<String, Long> stats = new HashMap<>();
+        for (ReservationStatus status : ReservationStatus.values()) {
+            stats.put(status.name(), 0L);
+        }
+
+        // Récupérer les résultats existants en base
+        List<Object[]> results = reservationRepository.countReservationsByStatus();
+
+        // Mettre à jour les valeurs présentes
+        for (Object[] row : results) {
+            ReservationStatus status = (ReservationStatus) row[0];
+            Long count = (Long) row[1];
+            stats.put(status.name(), count);
+        }
+
+        return stats;
+    }
+    /*@Override
     public Map<String, Long> getReservationCountByPaymentMethod() {
         List<Object[]> results = reservationRepository.countReservationsByPaymentMethod();
         Map<String, Long> stats = new HashMap<>();
 
+        for (Object[] row : results) {
+            MethodePaiement method = (MethodePaiement) row[0];
+            Long count = (Long) row[1];
+            stats.put(method.name(), count);
+        }
+
+        return stats;
+    }*/
+    @Override
+    public Map<String, Long> getReservationCountByPaymentMethod() {
+        // Initialiser la map avec toutes les méthodes à 0
+        Map<String, Long> stats = new HashMap<>();
+        for (MethodePaiement method : MethodePaiement.values()) {
+            stats.put(method.name(), 0L);
+        }
+
+        // Récupérer les résultats existants en base
+        List<Object[]> results = reservationRepository.countReservationsByPaymentMethod();
+
+        // Mettre à jour les valeurs présentes
         for (Object[] row : results) {
             MethodePaiement method = (MethodePaiement) row[0];
             Long count = (Long) row[1];
@@ -93,6 +135,19 @@ public class DashbordServiceImpl implements DashbordService {
         result.put("categorie", name);
         result.put("total", total);
         return result;
+    }
+    @Override
+    public Map<Integer, Double> getRevenuMensuel(int annee) {
+        List<Object[]> resultats = paiementRepository.getRevenuParMois(annee);
+        Map<Integer, Double> revenus = new HashMap<>();
+
+        for (Object[] obj : resultats) {
+            Integer mois = (Integer) obj[0];
+            Double montant = (Double) obj[1];
+            revenus.put(mois, montant);
+        }
+
+        return revenus;
     }
 
 }

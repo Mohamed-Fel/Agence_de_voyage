@@ -4,5 +4,7 @@ public enum ReservationStatus {
     A_VENIR,
     EN_COURS,
     TERMINEE,
-    ANNULEE
+    ANNULEE,
+    CONFIRMED,
+    CANCELLED
 }

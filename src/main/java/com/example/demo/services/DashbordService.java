@@ -11,7 +11,6 @@ public interface DashbordService {
     boolean checkIfReservationsExistInMonth(int year, int month);
     List<Map<String, Object>> getTop3Destinations();
     Map<String, Object> countProduitsByCategorieName(String name);
-	
-
+    Map<Integer, Double> getRevenuMensuel(int annee);
 
 }

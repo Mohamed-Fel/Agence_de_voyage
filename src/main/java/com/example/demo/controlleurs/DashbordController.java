@@ -1,23 +1,32 @@
 package com.example.demo.controlleurs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.services.DashbordService;
+import com.example.demo.services.PaiementService;
 
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashbordController {
 	@Autowired
     private DashbordService dashbordService;
+	
+	@Autowired
+    private PaiementService paiementService;
+	
 
     @GetMapping("/total-bookings-today")
     public ResponseEntity<Long> getTotalBookingsToday() {
@@ -57,6 +66,28 @@ public class DashbordController {
     @GetMapping("/categorie")
     public Map<String, Object> getNombreProduitsParCategorie(@RequestParam String name) {
         return dashbordService.countProduitsByCategorieName(name);
+    }
+    @GetMapping("/revenu-annuel/{annee}")
+    public ResponseEntity<Map<String, Object>> getRevenuMensuel(@PathVariable int annee) {
+        Map<Integer, Double> revenus = dashbordService.getRevenuMensuel(annee);
+
+        String[] moisNoms = {
+            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+        };
+
+        List<String> affichage = new ArrayList<>();
+
+        for (int i = 1; i <= 12; i++) {
+            double montant = revenus.getOrDefault(i, 0.0);
+            affichage.add(moisNoms[i - 1] + " : " + montant);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("revenu", affichage);
+        response.put("message", "Revenu mensuel pour l'année " + annee + " récupéré avec succès.");
+
+        return ResponseEntity.ok(response);
     }
 
 }
