@@ -200,6 +200,8 @@ public class StripeController {
     public ResponseEntity<String> handleStripeEvent(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader) throws StripeException {
+        System.out.println("Received webhook payload: " + payload); // Ajoutez ce log
+        System.out.println("Received signature: " + sigHeader); // Ajoutez ce log
         
         Stripe.apiKey = secretKey;
 
@@ -214,12 +216,13 @@ public class StripeController {
 
         try {
             switch(event.getType()) {
-                /*case "checkout.session.completed":
+                case "checkout.session.completed":
                     handleCheckoutSessionCompleted(event);
-                    break;*/
-                case "payment_intent.succeeded":
-                    handlePaymentSucceeded(event);
                     break;
+                /*case "payment_intent.succeeded":
+                    //handlePaymentSucceeded(event);
+                	System.out.println("Payment intent succeeded event ignored - using checkout.session.completed");
+                    break;*/
                 case "payment_intent.payment_failed":
                     handlePaymentFailed(event);
                     break;
@@ -239,7 +242,7 @@ public class StripeController {
         return ResponseEntity.ok("Webhook processed successfully");
     }
 
-    /*private void handleCheckoutSessionCompleted(Event event) throws StripeException {
+    private void handleCheckoutSessionCompleted(Event event) throws StripeException {
         Session session = (Session) event.getDataObjectDeserializer().getObject().orElseThrow(
             () -> new RuntimeException("Failed to deserialize session"));
         
@@ -271,7 +274,7 @@ public class StripeController {
         reservationRepository.save(reservation);
         
         System.out.println("Payment recorded - Type: " + paymentType + ", Amount: " + paiement.getMontantPaye());
-    }*/
+    }
 
     private void handlePaymentSucceeded(Event event) throws StripeException {
         PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElseThrow(
