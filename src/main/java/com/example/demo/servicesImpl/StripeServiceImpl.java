@@ -32,12 +32,14 @@ public class StripeServiceImpl implements StripeService {
 
 	        Reservation reservation = reservationRepository.findById(reservationId)
 	                .orElseThrow(() -> new RuntimeException("Réservation introuvable"));
+	        // Construire l'URL de succès dynamique
+	        String dynamicSuccessUrl = successUrl + reservationId;
 
 	        long montantEnCentimes = (long) (reservation.getTotalPrixReservation() * 100);
 
 	        SessionCreateParams params = SessionCreateParams.builder()
 	                .setMode(SessionCreateParams.Mode.PAYMENT)
-	                .setSuccessUrl(successUrl)
+	                .setSuccessUrl(dynamicSuccessUrl)
 	                .setCancelUrl(cancelUrl)
 	                .addLineItem(
 	                        SessionCreateParams.LineItem.builder()
